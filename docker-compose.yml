@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: codium-postgres
+    environment:
+      POSTGRES_USER: codium
+      POSTGRES_PASSWORD: codium_password
+      POSTGRES_DB: codium_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - codium-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codium"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: codium-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - codium-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: codium-api
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://codium:codium_password@postgres:5432/codium_db?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: codium-super-secret-jwt-key-change-in-production
+      JWT_EXPIRATION: 7d
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - codium-network
+    restart: unless-stopped
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
+
+  worker-python:
+    build:
+      context: ./workers/python-worker
+      dockerfile: Dockerfile
+    container_name: codium-worker-python
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_LANGUAGE: python
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - codium-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  worker-java:
+    build:
+      context: ./workers/java-worker
+      dockerfile: Dockerfile
+    container_name: codium-worker-java
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_LANGUAGE: java
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - codium-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  worker-nodejs:
+    build:
+      context: ./workers/nodejs-worker
+      dockerfile: Dockerfile
+    container_name: codium-worker-nodejs
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_LANGUAGE: nodejs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - codium-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  worker-cpp:
+    build:
+      context: ./workers/cpp-worker
+      dockerfile: Dockerfile
+    container_name: codium-worker-cpp
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_LANGUAGE: cpp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - codium-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+networks:
+  codium-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

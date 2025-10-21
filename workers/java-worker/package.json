@@ -1,0 +1,18 @@
+{
+  "name": "codium-java-worker",
+  "version": "1.0.0",
+  "description": "Worker para procesar submissions en Java",
+  "main": "worker.ts",
+  "scripts": {
+    "start": "ts-node worker.ts"
+  },
+  "dependencies": {
+    "bull": "^4.12.0",
+    "redis": "^4.6.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

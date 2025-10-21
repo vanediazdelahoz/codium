@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  PROFESSOR
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ChallengeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SubmissionStatus {
+  QUEUED
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum Language {
+  PYTHON
+  JAVA
+  NODEJS
+  CPP
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submissions      Submission[]
+  coursesEnrolled  CourseStudent[]
+  coursesProfessor Course[]
+  createdChallenges Challenge[]
+
+  @@map("users")
+}
+
+model Course {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  period    String
+  group     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  professors  User[]
+  students    CourseStudent[]
+  challenges  Challenge[]
+  submissions Submission[]
+
+  @@map("courses")
+}
+
+model CourseStudent {
+  courseId   String
+  studentId  String
+  enrolledAt DateTime @default(now())
+
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, studentId])
+  @@map("course_students")
+}
+
+model Challenge {
+  id          String          @id @default(uuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  tags        String[]
+  timeLimit   Int             // milliseconds
+  memoryLimit Int             // MB
+  status      ChallengeStatus @default(DRAFT)
+  courseId    String
+  createdById String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  testCases   TestCase[]
+  submissions Submission[]
+
+  @@map("challenges")
+}
+
+model TestCase {
+  id             String  @id @default(uuid())
+  challengeId    String
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(false)
+  points         Int     @default(10)
+  order          Int
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  results   TestCaseResult[]
+
+  @@map("test_cases")
+}
+
+model Submission {
+  id           String           @id @default(uuid())
+  userId       String
+  challengeId  String
+  courseId     String
+  code         String
+  language     Language
+  status       SubmissionStatus @default(QUEUED)
+  score        Int              @default(0)
+  timeMsTotal  Int              @default(0)
+  memoryUsedMb Float            @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  user    User             @relation(fields: [userId], references: [id])
+  challenge Challenge      @relation(fields: [challengeId], references: [id])
+  course  Course           @relation(fields: [courseId], references: [id])
+  results TestCaseResult[]
+
+  @@map("submissions")
+}
+
+model TestCaseResult {
+  id           String           @id @default(uuid())
+  submissionId String
+  testCaseId   String
+  status       SubmissionStatus
+  timeMs       Int
+  memoryMb     Float
+  output       String?
+  error        String?
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  testCase   TestCase   @relation(fields: [testCaseId], references: [id])
+
+  @@map("test_case_results")
+}
