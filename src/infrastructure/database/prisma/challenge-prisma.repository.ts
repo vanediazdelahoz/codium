@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import type { PrismaService } from "../../database/prisma.service"
+import type { PrismaService } from "../prisma.service"
 import type { IChallengeRepository } from "@core/domain/challenges/challenge.repository.port"
 import type { Challenge, Difficulty, ChallengeStatus } from "@core/domain/challenges/challenge.entity"
 

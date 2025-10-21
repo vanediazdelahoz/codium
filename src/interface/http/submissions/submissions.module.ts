@@ -5,7 +5,7 @@ import { SubmitSolutionUseCase } from "@core/application/submissions/usecases/su
 import { GetSubmissionUseCase } from "@core/application/submissions/usecases/get-submission.usecase"
 import { ListUserSubmissionsUseCase } from "@core/application/submissions/usecases/list-user-submissions.usecase"
 import { SUBMISSION_REPOSITORY } from "@core/application/submissions/tokens"
-import { SubmissionPrismaRepository } from "@infrastructure/submissions/prisma/submission-prisma.repository"
+import { SubmissionPrismaRepository } from "@infrastructure/database/prisma/submission-prisma.repository"
 import { SubmissionProcessor } from "@infrastructure/queue/submission.processor"
 import { PrismaService } from "@infrastructure/database/prisma.service"
 

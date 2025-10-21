@@ -5,7 +5,7 @@ import { ListCoursesUseCase } from "@core/application/courses/usecases/list-cour
 import { GetCourseUseCase } from "@core/application/courses/usecases/get-course.usecase"
 import { EnrollStudentUseCase } from "@core/application/courses/usecases/enroll-student.usecase"
 import { COURSE_REPOSITORY } from "@core/application/courses/tokens"
-import { CoursePrismaRepository } from "@infrastructure/courses/prisma/course-prisma.repository"
+import { CoursePrismaRepository } from "@infrastructure/database/prisma/course-prisma.repository"
 import { PrismaService } from "@infrastructure/database/prisma.service"
 
 @Module({

@@ -9,14 +9,18 @@ import { UserRole } from "@core/domain/users/user.entity"
 export class UpdateChallengeUseCase {
   constructor(private readonly challengeRepository: IChallengeRepository) {}
 
-  async execute(id: string, dto: UpdateChallengeDto, userRole: UserRole): Promise<ChallengeDto> {
-    if (userRole !== UserRole.ADMIN && userRole !== UserRole.PROFESSOR) {
-      throw new ForbiddenException("Only admins and professors can update challenges")
-    }
-
+  async execute(id: string, dto: UpdateChallengeDto, userId: string, userRole: UserRole): Promise<ChallengeDto> {
     const challenge = await this.challengeRepository.findById(id)
     if (!challenge) {
       throw new NotFoundException("Challenge not found")
+    }
+
+    // Un profesor solo puede editar sus propios retos, un admin puede editar cualquiera.
+    const isOwner = challenge.createdBy === userId
+    const isAdmin = userRole === UserRole.ADMIN
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException("You do not have permission to edit this challenge")
     }
 
     const updated = await this.challengeRepository.update(id, dto)

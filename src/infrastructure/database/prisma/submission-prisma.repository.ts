@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import type { PrismaService } from "../../database/prisma.service"
+import type { PrismaService } from "../prisma.service"
 import type { ISubmissionRepository } from "@core/domain/submissions/submission.repository.port"
 import type { Submission, SubmissionStatus, Language } from "@core/domain/submissions/submission.entity"
 

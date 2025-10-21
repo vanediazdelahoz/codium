@@ -5,7 +5,7 @@ import { UpdateChallengeUseCase } from "@core/application/challenges/usecases/up
 import { ListChallengesUseCase } from "@core/application/challenges/usecases/list-challenges.usecase"
 import { GetChallengeUseCase } from "@core/application/challenges/usecases/get-challenge.usecase"
 import { CHALLENGE_REPOSITORY } from "@core/application/challenges/tokens"
-import { ChallengePrismaRepository } from "@infrastructure/challenges/prisma/challenge-prisma.repository"
+import { ChallengePrismaRepository } from "@infrastructure/database/prisma/challenge-prisma.repository"
 import { PrismaService } from "@infrastructure/database/prisma.service"
 
 @Module({
