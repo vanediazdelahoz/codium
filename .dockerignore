@@ -1,0 +1,14 @@
+# Ignorar la carpeta de dependencias locales
+node_modules
+
+# Ignorar la carpeta de compilación de NestJS
+dist
+
+# Ignorar el control de versiones de Git
+.git
+
+# Ignorar archivos de entorno (contienen secretos)
+.env
+
+# Ignorar configuraciones del editor de código
+.vscode

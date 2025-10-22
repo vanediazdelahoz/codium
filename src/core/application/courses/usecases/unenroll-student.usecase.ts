@@ -1,26 +1,25 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common"
-import type { ICourseRepository } from "@domain/repositories/course.repository.interface"
+import { Inject, Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { COURSE_REPOSITORY, CourseRepositoryPort } from "@core/domain/courses/course.repository.port";
+import { UserRole } from "@core/domain/users/user.entity";
 
 @Injectable()
 export class UnenrollStudentUseCase {
-  private readonly courseRepository: ICourseRepository
+  constructor(
+    @Inject(COURSE_REPOSITORY)
+    private readonly courseRepository: CourseRepositoryPort,
+  ) {}
 
-  constructor(courseRepository: ICourseRepository) {
-    this.courseRepository = courseRepository
-  }
-
-  async execute(courseId: string, studentId: string, requestUserId: string, requestUserRole: string): Promise<void> {
-    const course = await this.courseRepository.findById(courseId)
+  async execute(courseId: string, studentId: string, requestUserId: string, requestUserRole: UserRole): Promise<void> {
+    const course = await this.courseRepository.findById(courseId);
 
     if (!course) {
-      throw new NotFoundException("Curso no encontrado")
+      throw new NotFoundException("Curso no encontrado");
     }
 
-    // Solo ADMIN o el profesor del curso pueden desinscribir estudiantes
-    if (requestUserRole !== "ADMIN" && !course.isProfessor(requestUserId)) {
-      throw new ForbiddenException("No tienes permiso para desinscribir estudiantes de este curso")
+    if (requestUserRole !== UserRole.ADMIN && !course.isProfessor(requestUserId)) {
+      throw new ForbiddenException("No tienes permiso para desinscribir estudiantes de este curso");
     }
 
-    await this.courseRepository.unenrollStudent(courseId, studentId)
+    await this.courseRepository.unenrollStudent(courseId, studentId);
   }
 }

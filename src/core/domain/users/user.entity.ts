@@ -4,35 +4,58 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
-export class User {
-  constructor(
-    public readonly id: string,
-    public readonly email: string,
-    public readonly password: string,
-    public readonly firstName: string,
-    public readonly lastName: string,
-    public readonly role: UserRole,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
-  ) {}
+// Interfaz para definir las propiedades del constructor
+interface UserProps {
+  id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-  get fullName(): string {
-    return `${this.firstName} ${this.lastName}`
+export class User {
+  public readonly id: string;
+  public readonly email: string;
+  public readonly password: string;
+  public readonly firstName: string;
+  public readonly lastName: string;
+  public readonly role: UserRole;
+  public readonly createdAt: Date;
+  public readonly updatedAt: Date;
+
+  // CORREGIDO: El constructor ahora acepta un solo objeto de propiedades
+  constructor(props: UserProps) {
+    this.id = props.id;
+    this.email = props.email;
+    this.password = props.password;
+    this.firstName = props.firstName;
+    this.lastName = props.lastName;
+    this.role = props.role;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
   }
 
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
+  
+  // ... (el resto de tus métodos como isAdmin, isProfessor, etc.)
   isAdmin(): boolean {
-    return this.role === UserRole.ADMIN
+    return this.role === UserRole.ADMIN;
   }
 
   isProfessor(): boolean {
-    return this.role === UserRole.PROFESSOR
+    return this.role === UserRole.PROFESSOR;
   }
 
   isStudent(): boolean {
-    return this.role === UserRole.STUDENT
+    return this.role === UserRole.STUDENT;
   }
 
   canManageChallenges(): boolean {
-    return this.isAdmin() || this.isProfessor()
+    return this.isAdmin() || this.isProfessor();
   }
 }

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Param, Query } from "@nestjs/common"
+import { Controller, Get, Post, Patch, Param, Query, Body } from "@nestjs/common"; // Corregido: Añadir Body
+// ... (resto del archivo)
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger"
 import type { CreateChallengeUseCase } from "@core/application/challenges/usecases/create-challenge.usecase"
 import type { UpdateChallengeUseCase } from "@core/application/challenges/usecases/update-challenge.usecase"
@@ -40,10 +41,15 @@ export class ChallengesController {
     return this.getChallengeUseCase.execute(id, user.role)
   }
 
+// ... (imports y constructor) ...
+
   @Patch(":id")
   @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update challenge" })
-  async update(@Param('id') id: string, dto: UpdateChallengeDto, @CurrentUser() user: any) {
-    return this.updateChallengeUseCase.execute(id, dto, user.role)
+  async update(@Param('id') id: string, @Body() dto: UpdateChallengeDto, @CurrentUser() user: any) { // Usar @Body()
+    // CORREGIDO: Se añade user.id como tercer argumento
+    return this.updateChallengeUseCase.execute(id, dto, user.id, user.role);
   }
+
+  // ... (resto del controlador)
 }

@@ -44,7 +44,7 @@ services:
       DATABASE_URL: postgresql://codium:codium_password@postgres:5432/codium_db?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: codium-super-secret-jwt-key-change-in-production
+      JWT_SECRET: ${JWT_SECRET} # <-- CORREGIDO: Lee la variable de .env
       JWT_EXPIRATION: 7d
     ports:
       - "3000:3000"
@@ -78,8 +78,6 @@ services:
     networks:
       - codium-network
     restart: unless-stopped
-    deploy:
-      replicas: 2
 
   worker-java:
     build:
@@ -97,8 +95,6 @@ services:
     networks:
       - codium-network
     restart: unless-stopped
-    deploy:
-      replicas: 2
 
   worker-nodejs:
     build:
@@ -116,8 +112,6 @@ services:
     networks:
       - codium-network
     restart: unless-stopped
-    deploy:
-      replicas: 2
 
   worker-cpp:
     build:
@@ -135,8 +129,6 @@ services:
     networks:
       - codium-network
     restart: unless-stopped
-    deploy:
-      replicas: 2
 
 networks:
   codium-network:

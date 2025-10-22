@@ -10,8 +10,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService)
   const port = configService.get<number>("PORT", 3000)
-  const apiPrefix = configService.get<string>("API_PREFIX", "api")
-
+  
+  // Nota: No necesitas leer el API_PREFIX aquí si lo vas a poner directamente
+  const apiPrefix = "api" 
+  
   // Global prefix
   app.setGlobalPrefix(apiPrefix)
 
@@ -44,7 +46,8 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup("docs", app, document)
+  // La ruta para la documentación ahora es /docs
+  SwaggerModule.setup("docs", app, document) 
 
   await app.listen(port)
 

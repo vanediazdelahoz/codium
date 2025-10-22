@@ -21,7 +21,8 @@
       "@core/*": ["src/core/*"],
       "@infrastructure/*": ["src/infrastructure/*"],
       "@interface/*": ["src/interface/*"]
-    }
+    },
+    "ignoreDeprecations": "5.0" // <-- LÍNEA AÑADIDA PARA SILENCIAR LA ADVERTENCIA
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]

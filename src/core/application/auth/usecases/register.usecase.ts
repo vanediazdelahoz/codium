@@ -1,35 +1,30 @@
-import { Injectable, ConflictException } from "@nestjs/common"
-import * as bcrypt from "bcrypt"
-import { v4 as uuidv4 } from "uuid"
-import type { IUserRepository } from "@domain/repositories/user.repository.interface"
-import { User, UserRole } from "@domain/entities/user.entity"
-
-export interface RegisterDto {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-  role?: UserRole
-}
+import { Inject, Injectable, ConflictException } from '@nestjs/common';
+import { BcryptService } from '@infrastructure/security/bcrypt.service';
+import { USER_REPOSITORY, UserRepositoryPort } from '@core/domain/users/user.repository.port';
+import { RegisterDto } from '../dto/register.dto';
+import { UserDto } from '../../users/dto/user.dto';
+import { UserMapper } from '../../users/mappers/user.mapper';
+import { User, UserRole } from '@core/domain/users/user.entity'; // <-- Importar la entidad User
+import { v4 as uuidv4 } from 'uuid'; // <-- Importar para generar IDs
 
 @Injectable()
 export class RegisterUseCase {
-  private readonly userRepository: IUserRepository
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: UserRepositoryPort,
+    private readonly bcryptService: BcryptService,
+  ) {}
 
-  constructor(userRepository: IUserRepository) {
-    this.userRepository = userRepository
-  }
-
-  async execute(dto: RegisterDto): Promise<User> {
-    const existingUser = await this.userRepository.findByEmail(dto.email)
-
+  async execute(dto: RegisterDto): Promise<UserDto> {
+    const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
-      throw new ConflictException("El email ya está registrado")
+      throw new ConflictException('El email ya está registrado');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10)
+    const hashedPassword = await this.bcryptService.hash(dto.password);
 
-    const user = new User({
+    // 1. Crear una instancia de la entidad User
+    const newUser = new User({
       id: uuidv4(),
       email: dto.email,
       password: hashedPassword,
@@ -38,8 +33,12 @@ export class RegisterUseCase {
       role: dto.role || UserRole.STUDENT,
       createdAt: new Date(),
       updatedAt: new Date(),
-    })
+    });
 
-    return await this.userRepository.create(user)
+    // 2. Pasar la instancia completa al repositorio
+    const createdUser = await this.userRepository.create(newUser);
+
+    // 3. Mapear la respuesta a un DTO seguro
+    return UserMapper.toDto(createdUser);
   }
 }

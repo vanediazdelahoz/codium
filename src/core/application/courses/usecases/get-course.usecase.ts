@@ -1,42 +1,29 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common"
-import type { ICourseRepository } from "@domain/repositories/course.repository.interface"
-import type { Course } from "@domain/entities/course.entity"
+import { Inject, Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { COURSE_REPOSITORY, CourseRepositoryPort } from "@core/domain/courses/course.repository.port";
+import { UserRole } from "@core/domain/users/user.entity";
+import { CourseDto } from "../dto/course.dto";
+import { CourseMapper } from "../mappers/course.mapper";
 
 @Injectable()
 export class GetCourseUseCase {
-  private readonly courseRepository: ICourseRepository
+  constructor(
+    @Inject(COURSE_REPOSITORY)
+    private readonly courseRepository: CourseRepositoryPort,
+  ) {}
 
-  constructor(courseRepository: ICourseRepository) {
-    this.courseRepository = courseRepository
-  }
+  async execute(id: string, userId: string, userRole: UserRole): Promise<CourseDto> {
+    const course = await this.courseRepository.findById(id);
+    if (!course) throw new NotFoundException("Curso no encontrado");
 
-  async execute(id: string, userId: string, userRole: string): Promise<Course> {
-    const course = await this.courseRepository.findById(id)
-
-    if (!course) {
-      throw new NotFoundException("Curso no encontrado")
+    if (userRole === UserRole.ADMIN || (userRole === UserRole.PROFESSOR && course.isProfessor(userId))) {
+      return CourseMapper.toDto(course);
+    }
+    
+    if (userRole === UserRole.STUDENT) {
+      const isEnrolled = await this.courseRepository.isStudentEnrolled(id, userId);
+      if (isEnrolled) return CourseMapper.toDto(course);
     }
 
-    // Verificar acceso
-    if (userRole === "ADMIN") {
-      return course
-    }
-
-    if (userRole === "PROFESSOR" && course.isProfessor(userId)) {
-      return course
-    }
-
-    if (userRole === "STUDENT") {
-      const studentCourses = await this.courseRepository.findCoursesByStudentId(userId)
-      const hasAccess = studentCourses.some((c) => c.id === id)
-
-      if (!hasAccess) {
-        throw new ForbiddenException("No tienes acceso a este curso")
-      }
-
-      return course
-    }
-
-    throw new ForbiddenException("No tienes acceso a este curso")
+    throw new ForbiddenException("No tienes acceso a este curso");
   }
 }

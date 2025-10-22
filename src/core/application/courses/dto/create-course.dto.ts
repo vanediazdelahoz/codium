@@ -1,24 +1,29 @@
-import { IsString, IsNotEmpty, IsNumber, Min } from "class-validator"
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsNumber, IsUUID } from 'class-validator';
 
 export class CreateCourseDto {
-  @ApiProperty({ example: "Desarrollo de Aplicaciones Backend" })
-  @IsString()
+  @ApiProperty()
   @IsNotEmpty()
-  name: string
-
-  @ApiProperty({ example: "NRC12345" })
   @IsString()
-  @IsNotEmpty()
-  code: string
+  name: string;
 
-  @ApiProperty({ example: "2025-1" })
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
-  @IsNotEmpty()
-  period: string
+  code: string;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  period: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
-  @Min(1)
-  group: number
+  group: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsUUID()
+  professorId: string; // La propiedad que faltaba
 }

@@ -1,39 +1,33 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common"
-import { v4 as uuidv4 } from "uuid"
-import type { IChallengeRepository } from "@domain/repositories/challenge.repository.interface"
-import type { ITestCaseRepository } from "@domain/repositories/test-case.repository.interface"
-import { TestCase } from "@domain/entities/test-case.entity"
-
-export interface AddTestCaseDto {
-  input: string
-  expectedOutput: string
-  isHidden: boolean
-  points: number
-}
+import { Inject, Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { v4 as uuidv4 } from "uuid";
+import { CHALLENGE_REPOSITORY, ChallengeRepositoryPort } from "@core/domain/challenges/challenge.repository.port";
+import { TEST_CASE_REPOSITORY, TestCaseRepositoryPort } from "@core/domain/test-cases/test-case.repository.port";
+import { TestCase } from "@core/domain/test-cases/test-case.entity";
+import { UserRole } from "@core/domain/users/user.entity";
+import { AddTestCaseDto } from "../dto/add-test-case.dto";
 
 @Injectable()
 export class AddTestCaseUseCase {
-  private readonly challengeRepository: IChallengeRepository
-  private readonly testCaseRepository: ITestCaseRepository
+  constructor(
+    @Inject(CHALLENGE_REPOSITORY)
+    private readonly challengeRepository: ChallengeRepositoryPort,
+    @Inject(TEST_CASE_REPOSITORY)
+    private readonly testCaseRepository: TestCaseRepositoryPort,
+  ) {}
 
-  constructor(challengeRepository: IChallengeRepository, testCaseRepository: ITestCaseRepository) {
-    this.challengeRepository = challengeRepository
-    this.testCaseRepository = testCaseRepository
-  }
-
-  async execute(challengeId: string, dto: AddTestCaseDto, userId: string, userRole: string): Promise<TestCase> {
-    const challenge = await this.challengeRepository.findById(challengeId)
+  async execute(challengeId: string, dto: AddTestCaseDto, userId: string, userRole: UserRole): Promise<TestCase> {
+    const challenge = await this.challengeRepository.findById(challengeId);
 
     if (!challenge) {
-      throw new NotFoundException("Reto no encontrado")
+      throw new NotFoundException("Reto no encontrado");
     }
 
-    if (userRole !== "ADMIN" && challenge.createdBy !== userId) {
-      throw new ForbiddenException("No tienes permiso para agregar casos de prueba a este reto")
+    if (userRole !== UserRole.ADMIN && challenge.createdById !== userId) {
+      throw new ForbiddenException("No tienes permiso para agregar casos de prueba a este reto");
     }
 
-    const existingCases = await this.testCaseRepository.findByChallengeId(challengeId)
-    const nextOrder = existingCases.length
+    const existingCases = await this.testCaseRepository.findByChallengeId(challengeId);
+    const nextOrder = existingCases.length + 1;
 
     const testCase = new TestCase({
       id: uuidv4(),
@@ -44,8 +38,9 @@ export class AddTestCaseUseCase {
       points: dto.points,
       order: nextOrder,
       createdAt: new Date(),
-    })
+      updatedAt: new Date(), // Es bueno añadir updatedAt también
+    });
 
-    return await this.testCaseRepository.create(testCase)
+    return await this.testCaseRepository.create(testCase);
   }
 }

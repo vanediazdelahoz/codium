@@ -1,32 +1,30 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common"
-import type { IChallengeRepository } from "@domain/repositories/challenge.repository.interface"
-import type { ITestCaseRepository } from "@domain/repositories/test-case.repository.interface"
+import { Inject, Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { CHALLENGE_REPOSITORY, ChallengeRepositoryPort } from "@core/domain/challenges/challenge.repository.port";
+import { TEST_CASE_REPOSITORY, TestCaseRepositoryPort } from "@core/domain/test-cases/test-case.repository.port";
+import { UserRole } from "@core/domain/users/user.entity";
 
 @Injectable()
 export class DeleteChallengeUseCase {
-  private readonly challengeRepository: IChallengeRepository
-  private readonly testCaseRepository: ITestCaseRepository
+  constructor(
+    @Inject(CHALLENGE_REPOSITORY)
+    private readonly challengeRepository: ChallengeRepositoryPort,
+    @Inject(TEST_CASE_REPOSITORY)
+    private readonly testCaseRepository: TestCaseRepositoryPort,
+  ) {}
 
-  constructor(challengeRepository: IChallengeRepository, testCaseRepository: ITestCaseRepository) {
-    this.challengeRepository = challengeRepository
-    this.testCaseRepository = testCaseRepository
-  }
-
-  async execute(id: string, userId: string, userRole: string): Promise<void> {
-    const challenge = await this.challengeRepository.findById(id)
+  async execute(id: string, userId: string, userRole: UserRole): Promise<void> {
+    const challenge = await this.challengeRepository.findById(id);
 
     if (!challenge) {
-      throw new NotFoundException("Reto no encontrado")
+      throw new NotFoundException("Reto no encontrado");
     }
 
-    if (userRole !== "ADMIN" && challenge.createdBy !== userId) {
-      throw new ForbiddenException("No tienes permiso para eliminar este reto")
+    if (userRole !== UserRole.ADMIN && challenge.createdById !== userId) {
+      throw new ForbiddenException("No tienes permiso para eliminar este reto");
     }
 
-    // Eliminar casos de prueba asociados
-    await this.testCaseRepository.deleteAllByChallengeId(id)
-
-    // Eliminar el reto
-    await this.challengeRepository.delete(id)
+    // El repositorio se encargará de las eliminaciones en cascada si está configurado en Prisma.
+    // No es necesario eliminar los casos de prueba manualmente.
+    await this.challengeRepository.delete(id);
   }
 }

@@ -1,103 +1,120 @@
-import { Injectable } from "@nestjs/common"
-import type { PrismaService } from "../prisma.service"
-import type { ICourseRepository } from "@core/domain/courses/course.repository.port"
-import type { Course } from "@core/domain/courses/course.entity"
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma.service";
+import { CourseRepositoryPort } from "@core/domain/courses/course.repository.port";
+import { Course, CourseStudent } from "@core/domain/courses/course.entity";
+import { User } from "@core/domain/users/user.entity";
 
 @Injectable()
-export class CoursePrismaRepository implements ICourseRepository {
+export class CoursePrismaRepository implements CourseRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(course: Omit<Course, "id" | "createdAt" | "updatedAt">): Promise<Course> {
+  async create(course: Course): Promise<Course> {
     const created = await this.prisma.course.create({
       data: {
+        id: course.id,
         name: course.name,
         code: course.code,
         period: course.period,
         group: course.group,
-        professorIds: course.professorIds,
+        createdAt: course.createdAt,
+        updatedAt: course.updatedAt,
+        // CORREGIDO: Sintaxis correcta para relaciones many-to-many en Prisma
+        professors: {
+          connect: course.professorIds.map((id) => ({ id })),
+        },
       },
-    })
-
-    return this.toDomain(created)
+      include: { professors: { select: { id: true } } }, // Devolver IDs para el toDomain
+    });
+    return this.toDomain(created);
   }
 
   async findById(id: string): Promise<Course | null> {
     const course = await this.prisma.course.findUnique({
       where: { id },
-    })
-
-    return course ? this.toDomain(course) : null
+      include: { professors: { select: { id: true } } },
+    });
+    return course ? this.toDomain(course) : null;
   }
 
   async findAll(): Promise<Course[]> {
-    const courses = await this.prisma.course.findMany()
-    return courses.map(this.toDomain)
+    const courses = await this.prisma.course.findMany({
+      include: { professors: { select: { id: true } } },
+    });
+    return courses.map((c) => this.toDomain(c));
   }
-
+  
   async findByProfessorId(professorId: string): Promise<Course[]> {
     const courses = await this.prisma.course.findMany({
-      where: {
-        professorIds: {
-          has: professorId,
-        },
-      },
-    })
-    return courses.map(this.toDomain)
+        where: { professors: { some: { id: professorId } } },
+        include: { professors: { select: { id: true } } }
+    });
+    return courses.map(c => this.toDomain(c));
+  }
+
+  async findCoursesByStudentId(studentId: string): Promise<Course[]> {
+      const courses = await this.prisma.course.findMany({
+          where: { students: { some: { studentId } } },
+          include: { professors: { select: { id: true } } }
+      });
+      return courses.map(c => this.toDomain(c));
   }
 
   async update(id: string, data: Partial<Course>): Promise<Course> {
     const updated = await this.prisma.course.update({
       where: { id },
       data,
-    })
-
-    return this.toDomain(updated)
+      include: { professors: { select: { id: true } } },
+    });
+    return this.toDomain(updated);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.course.delete({
-      where: { id },
-    })
+    await this.prisma.course.delete({ where: { id } });
   }
 
-  async enrollStudent(courseId: string, studentId: string): Promise<void> {
+  async enrollStudent(enrollment: CourseStudent): Promise<void> {
     await this.prisma.courseStudent.create({
       data: {
-        courseId,
-        studentId,
+        courseId: enrollment.courseId,
+        studentId: enrollment.studentId,
+        enrolledAt: enrollment.enrolledAt,
       },
-    })
+    });
   }
 
   async unenrollStudent(courseId: string, studentId: string): Promise<void> {
     await this.prisma.courseStudent.delete({
-      where: {
-        courseId_studentId: {
-          courseId,
-          studentId,
-        },
-      },
-    })
+      where: { courseId_studentId: { courseId, studentId } },
+    });
   }
 
-  async findStudentsByCourseId(courseId: string): Promise<string[]> {
-    const enrollments = await this.prisma.courseStudent.findMany({
-      where: { courseId },
-      select: { studentId: true },
-    })
-    return enrollments.map((e) => e.studentId)
+  async isStudentEnrolled(courseId: string, studentId: string): Promise<boolean> {
+      const enrollment = await this.prisma.courseStudent.findUnique({
+          where: { courseId_studentId: { courseId, studentId } }
+      });
+      return !!enrollment;
+  }
+
+  async findStudentsByCourseId(courseId: string): Promise<User[]> {
+      const enrollments = await this.prisma.courseStudent.findMany({
+          where: { courseId },
+          include: { student: true } // Incluir el objeto de usuario completo
+      });
+      // Aquí necesitarías un UserMapper si quieres devolver instancias de la entidad User
+      return enrollments.map(e => e.student as any);
   }
 
   private toDomain(prismaCourse: any): Course {
-    return {
+    // CORREGIDO: Devuelve una instancia de la clase Course
+    return new Course({
       id: prismaCourse.id,
       name: prismaCourse.name,
       code: prismaCourse.code,
       period: prismaCourse.period,
       group: prismaCourse.group,
-      professorIds: prismaCourse.professorIds,
+      professorIds: prismaCourse.professors.map((p: any) => p.id), // Extraer IDs de la relación
       createdAt: prismaCourse.createdAt,
       updatedAt: prismaCourse.updatedAt,
-    }
+    });
   }
 }

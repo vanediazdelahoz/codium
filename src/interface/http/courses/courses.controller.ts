@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param } from "@nestjs/common"
+import { Controller, Get, Post, Param, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger"
 import type { CreateCourseUseCase } from "@core/application/courses/usecases/create-course.usecase"
 import type { ListCoursesUseCase } from "@core/application/courses/usecases/list-courses.usecase"
@@ -24,8 +24,8 @@ export class CoursesController {
   @Post()
   @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new course" })
-  async create(dto: CreateCourseDto, @CurrentUser() user: any) {
-    return this.createCourseUseCase.execute(dto, user.id, user.role)
+  async create(@Body() dto: CreateCourseDto, @CurrentUser() user: any) {
+    return this.createCourseUseCase.execute(dto, user.role); // Corregido: Solo se necesita el rol
   }
 
   @Get()
@@ -36,14 +36,14 @@ export class CoursesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get course by ID' })
-  async get(@Param('id') id: string) {
-    return this.getCourseUseCase.execute(id)
+  async get(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.getCourseUseCase.execute(id, user.id, user.role); // Corregido: Faltaban argumentos
   }
 
   @Post(":id/students")
   @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
   @ApiOperation({ summary: "Enroll student in course" })
-  async enrollStudent(@Param('id') courseId: string, dto: EnrollStudentDto) {
-    return this.enrollStudentUseCase.execute(courseId, dto.studentId)
+  async enrollStudent(@Param('id') courseId: string, @Body() dto: EnrollStudentDto, @CurrentUser() user: any) {
+    return this.enrollStudentUseCase.execute(courseId, dto.studentId, user.id, user.role); // Corregido: Faltaban argumentos
   }
 }

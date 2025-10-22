@@ -1,54 +1,41 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common"
-import type { JwtService } from "@nestjs/jwt"
-import * as bcrypt from "bcrypt"
-import type { IUserRepository } from "@domain/repositories/user.repository.interface"
-
-export interface LoginDto {
-  email: string
-  password: string
-}
-
-export interface LoginResponse {
-  accessToken: string
-  user: {
-    id: string
-    email: string
-    firstName: string
-    lastName: string
-    role: string
-  }
-}
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BcryptService } from "@infrastructure/security/bcrypt.service";
+import { JwtService as CustomJwtService } from "@infrastructure/security/jwt.service";
+import { USER_REPOSITORY, UserRepositoryPort } from "@core/domain/users/user.repository.port";
+import { LoginDto, LoginResponse } from "../dto/login.dto"; // CORREGIDO: DTOs importados de su archivo
 
 @Injectable()
 export class LoginUseCase {
-  private readonly userRepository: IUserRepository
-  private readonly jwtService: JwtService
-
-  constructor(userRepository: IUserRepository, jwtService: JwtService) {
-    this.userRepository = userRepository
-    this.jwtService = jwtService
-  }
+  // CORREGIDO: El constructor ahora es más limpio y usa inyección de dependencias correctamente
+  constructor(
+    @Inject(USER_REPOSITORY) // Inyecta la implementación usando el token
+    private readonly userRepository: UserRepositoryPort,
+    private readonly bcryptService: BcryptService, // Inyecta el servicio de bcrypt
+    private readonly jwtService: CustomJwtService, // Inyecta tu servicio de JWT personalizado
+  ) {}
 
   async execute(dto: LoginDto): Promise<LoginResponse> {
-    const user = await this.userRepository.findByEmail(dto.email)
+    const user = await this.userRepository.findByEmail(dto.email);
 
     if (!user) {
-      throw new UnauthorizedException("Credenciales inválidas")
+      throw new UnauthorizedException("Credenciales inválidas");
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password)
+    // CORREGIDO: Se usa el BcryptService en lugar de la librería directamente
+    const isPasswordValid = await this.bcryptService.compare(dto.password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Credenciales inválidas")
+      throw new UnauthorizedException("Credenciales inválidas");
     }
 
     const payload = {
       sub: user.id,
       email: user.email,
       role: user.role,
-    }
+    };
 
-    const accessToken = this.jwtService.sign(payload)
+    // CORREGIDO: Se usa el servicio personalizado para firmar el token
+    const accessToken = await this.jwtService.sign(payload);
 
     return {
       accessToken,
@@ -59,6 +46,6 @@ export class LoginUseCase {
         lastName: user.lastName,
         role: user.role,
       },
-    }
+    };
   }
 }

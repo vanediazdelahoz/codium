@@ -10,31 +10,60 @@ export enum ChallengeStatus {
   ARCHIVED = "ARCHIVED",
 }
 
+interface ChallengeProps {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: Difficulty;
+  tags: string[];
+  timeLimit: number;
+  memoryLimit: number;
+  status: ChallengeStatus;
+  courseId: string;
+  createdById: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class Challenge {
-  constructor(
-    public readonly id: string,
-    public readonly title: string,
-    public readonly description: string,
-    public readonly difficulty: Difficulty,
-    public readonly tags: string[],
-    public readonly timeLimit: number,
-    public readonly memoryLimit: number,
-    public readonly status: ChallengeStatus,
-    public readonly courseId: string,
-    public readonly createdById: string,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
-  ) {}
+  public readonly id: string;
+  public readonly title: string;
+  public readonly description: string;
+  public readonly difficulty: Difficulty;
+  public readonly tags: string[];
+  public readonly timeLimit: number;
+  public readonly memoryLimit: number;
+  public readonly status: ChallengeStatus;
+  public readonly courseId: string;
+  public readonly createdById: string;
+  public readonly createdAt: Date;
+  public readonly updatedAt: Date;
+  
+  constructor(props: ChallengeProps) {
+    // Asignar propiedades desde el objeto props
+    this.id = props.id;
+    this.title = props.title;
+    this.description = props.description;
+    this.difficulty = props.difficulty;
+    this.tags = props.tags;
+    this.timeLimit = props.timeLimit;
+    this.memoryLimit = props.memoryLimit;
+    this.status = props.status;
+    this.courseId = props.courseId;
+    this.createdById = props.createdById;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
+  }
 
   isPublished(): boolean {
-    return this.status === ChallengeStatus.PUBLISHED
+    return this.status === ChallengeStatus.PUBLISHED;
   }
 
   isDraft(): boolean {
-    return this.status === ChallengeStatus.DRAFT
+    return this.status === ChallengeStatus.DRAFT;
   }
 
   canBeViewedByStudent(): boolean {
-    return this.isPublished()
+    return this.isPublished();
   }
 }
