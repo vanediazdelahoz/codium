@@ -44,6 +44,9 @@
       "^.+\\.(t|j)s$": "ts-jest"
     }
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@nestjs/bull": "10.1.0",
     "@nestjs/common": "^10.0.0",
