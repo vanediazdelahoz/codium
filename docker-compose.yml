@@ -37,6 +37,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    env_file: ./.env # <-- AÑADE ESTA LÍNEA
     container_name: codium-api
     environment:
       NODE_ENV: development

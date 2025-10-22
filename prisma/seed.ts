@@ -1,14 +1,14 @@
-import { PrismaClient, UserRole, Difficulty, ChallengeStatus } from "@prisma/client"
-import * as bcrypt from "bcrypt"
+import { PrismaClient } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...")
+  console.log("🌱 Seeding database...");
 
   // Create admin user
-  const adminPassword = await bcrypt.hash("admin123", 10)
-  const admin = await prisma.user.upsert({
+  const adminPassword = await bcrypt.hash("admin123", 10);
+  await prisma.user.upsert({
     where: { email: "admin@codium.com" },
     update: {},
     create: {
@@ -16,12 +16,12 @@ async function main() {
       password: adminPassword,
       firstName: "Admin",
       lastName: "User",
-      role: UserRole.ADMIN,
+      role: "ADMIN", // CORREGIDO: Usar string
     },
-  })
+  });
 
   // Create professor
-  const professorPassword = await bcrypt.hash("professor123", 10)
+  const professorPassword = await bcrypt.hash("professor123", 10);
   const professor = await prisma.user.upsert({
     where: { email: "professor@codium.com" },
     update: {},
@@ -30,12 +30,12 @@ async function main() {
       password: professorPassword,
       firstName: "John",
       lastName: "Doe",
-      role: UserRole.PROFESSOR,
+      role: "PROFESSOR", // CORREGIDO: Usar string
     },
-  })
+  });
 
   // Create students
-  const studentPassword = await bcrypt.hash("student123", 10)
+  const studentPassword = await bcrypt.hash("student123", 10);
   const student1 = await prisma.user.upsert({
     where: { email: "student1@codium.com" },
     update: {},
@@ -44,9 +44,9 @@ async function main() {
       password: studentPassword,
       firstName: "Alice",
       lastName: "Smith",
-      role: UserRole.STUDENT,
+      role: "STUDENT", // CORREGIDO: Usar string
     },
-  })
+  });
 
   const student2 = await prisma.user.upsert({
     where: { email: "student2@codium.com" },
@@ -56,9 +56,9 @@ async function main() {
       password: studentPassword,
       firstName: "Bob",
       lastName: "Johnson",
-      role: UserRole.STUDENT,
+      role: "STUDENT", // CORREGIDO: Usar string
     },
-  })
+  });
 
   // Create course
   const course = await prisma.course.upsert({
@@ -73,7 +73,7 @@ async function main() {
         connect: { id: professor.id },
       },
     },
-  })
+  });
 
   // Enroll students
   await prisma.courseStudent.createMany({
@@ -82,19 +82,18 @@ async function main() {
       { courseId: course.id, studentId: student2.id },
     ],
     skipDuplicates: true,
-  })
+  });
 
   // Create sample challenge
-  const challenge = await prisma.challenge.create({
+  await prisma.challenge.create({
     data: {
       title: "Two Sum",
-      description:
-        "Dado un arreglo de enteros nums y un entero target, devuelve los índices de los dos números que suman target.",
-      difficulty: Difficulty.EASY,
+      description: "Dado un arreglo de enteros nums y un entero target, devuelve los índices de los dos números que suman target.",
+      difficulty: "EASY", // CORREGIDO: Usar string
       tags: ["arrays", "hashmap"],
       timeLimit: 1500,
       memoryLimit: 256,
-      status: ChallengeStatus.PUBLISHED,
+      status: "PUBLISHED", // CORREGIDO: Usar string
       courseId: course.id,
       createdById: professor.id,
       testCases: {
@@ -116,20 +115,20 @@ async function main() {
         ],
       },
     },
-  })
+  });
 
-  console.log("✅ Database seeded successfully!")
-  console.log("\n📝 Test credentials:")
-  console.log("Admin: admin@codium.com / admin123")
-  console.log("Professor: professor@codium.com / professor123")
-  console.log("Student: student1@codium.com / student123")
+  console.log("✅ Database seeded successfully!");
+  console.log("\n📝 Test credentials:");
+  console.log("Admin: admin@codium.com / admin123");
+  console.log("Professor: professor@codium.com / professor123");
+  console.log("Student: student1@codium.com / student123");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error seeding database:", e)
-    process.exit(1)
+    console.error("❌ Error seeding database:", e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
