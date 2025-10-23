@@ -1,23 +1,24 @@
-import { Module, forwardRef } from "@nestjs/common"; // <-- AÑADIR forwardRef
+import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config"; // Importar ConfigModule
 import { LoginUseCase } from "@core/application/auth/usecases/login.usecase";
 import { RegisterUseCase } from "@core/application/auth/usecases/register.usecase";
+import { USER_REPOSITORY } from "@core/domain/users/user.repository.port";
+import { UserPrismaRepository } from "@infrastructure/database/prisma/user-prisma.repository";
+import { PrismaService } from "@infrastructure/database/prisma.service";
 import { BcryptService } from "@infrastructure/security/bcrypt.service";
 import { JwtService as CustomJwtService } from "@infrastructure/security/jwt.service";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
-import { UsersModule } from "../users/users.module";
 
 @Module({
   imports: [
-    // CORREGIDO: Se usa forwardRef para romper la dependencia circular
-    forwardRef(() => UsersModule),
+    ConfigModule, // <-- ¡ESTA ES LA LÍNEA CLAVE QUE FALTABA!
     PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      imports: [ConfigModule], // Esto está bien, pero el de arriba es el crucial
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
         signOptions: {
           expiresIn: configService.get<string>("JWT_EXPIRATION", "7d"),
@@ -32,8 +33,13 @@ import { UsersModule } from "../users/users.module";
     RegisterUseCase,
     BcryptService,
     CustomJwtService,
+    PrismaService,
     JwtStrategy,
+    {
+      provide: USER_REPOSITORY,
+      useClass: UserPrismaRepository,
+    },
   ],
-  exports: [JwtStrategy, PassportModule, JwtModule],
+  exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule {}

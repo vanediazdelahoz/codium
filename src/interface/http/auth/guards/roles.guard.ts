@@ -1,7 +1,8 @@
-import { Injectable, type CanActivate, type ExecutionContext, ForbiddenException } from "@nestjs/common"
-import type { Reflector } from "@nestjs/core"
-import { ROLES_KEY } from "../decorators/roles.decorator"
-import type { UserRole } from "@core/domain/users/user.entity"
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
+// CORREGIDO: Se elimina la palabra 'type' para que la importación sea real
+import { Reflector } from "@nestjs/core";
+import { ROLES_KEY } from "../decorators/roles.decorator";
+import type { UserRole } from "@core/domain/users/user.entity";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -11,24 +12,24 @@ export class RolesGuard implements CanActivate {
     const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
-    ])
+    ]);
 
     if (!requiredRoles) {
-      return true
+      return true;
     }
 
-    const { user } = context.switchToHttp().getRequest()
+    const { user } = context.switchToHttp().getRequest();
 
     if (!user) {
-      throw new ForbiddenException("User not authenticated")
+      throw new ForbiddenException("User not authenticated");
     }
 
-    const hasRole = requiredRoles.some((role) => user.role === role)
+    const hasRole = requiredRoles.some((role) => user.role === role);
 
     if (!hasRole) {
-      throw new ForbiddenException(`Required roles: ${requiredRoles.join(", ")}`)
+      throw new ForbiddenException(`Required roles: ${requiredRoles.join(", ")}`);
     }
 
-    return true
+    return true;
   }
 }

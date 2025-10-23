@@ -17,6 +17,6 @@ import { PrismaService } from "@infrastructure/database/prisma.service";
       useClass: UserPrismaRepository,
     },
   ],
-  exports: [USER_REPOSITORY], // <-- AÑADIDO: Hace que el repositorio sea público
+  exports: [USER_REPOSITORY], // Exportamos para que otros módulos puedan usarlo
 })
 export class UsersModule {}

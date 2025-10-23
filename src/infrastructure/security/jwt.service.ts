@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common"
-import type { JwtService as NestJwtService } from "@nestjs/jwt"
-import type { ConfigService } from "@nestjs/config"
+import { Injectable } from "@nestjs/common";
+// CORREGIDO: Se elimina la palabra 'type' para que la importación sea real
+import { JwtService as NestJwtService } from "@nestjs/jwt"; 
+import { ConfigService } from "@nestjs/config";
 
 export interface JwtPayload {
-  sub: string
-  email: string
-  role: string
+  sub: string;
+  email: string;
+  role: string;
 }
 
 @Injectable()
@@ -16,14 +17,14 @@ export class JwtService {
   ) {}
 
   sign(payload: JwtPayload): string {
-    return this.jwtService.sign(payload)
+    return this.jwtService.sign(payload);
   }
 
   verify(token: string): JwtPayload {
-    return this.jwtService.verify(token)
+    return this.jwtService.verify(token);
   }
 
   decode(token: string): JwtPayload | null {
-    return this.jwtService.decode(token) as JwtPayload | null
+    return this.jwtService.decode(token) as JwtPayload | null;
   }
 }
