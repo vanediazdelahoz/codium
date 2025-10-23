@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Param, Body } from "@nestjs/common"; // Añadir Body
+import { Controller, Get, Post, Param, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+// CORREGIDO: Se elimina la palabra 'type' de todas las importaciones de clases
 import { SubmitSolutionUseCase } from "@core/application/submissions/usecases/submit-solution.usecase";
 import { GetSubmissionUseCase } from "@core/application/submissions/usecases/get-submission.usecase";
 import { ListUserSubmissionsUseCase } from "@core/application/submissions/usecases/list-user-submissions.usecase";
@@ -31,7 +32,6 @@ export class SubmissionsController {
   @Get(":id")
   @ApiOperation({ summary: "Get submission by ID" })
   async get(@Param('id') id: string, @CurrentUser() user: any) {
-    // CORREGIDO: Se pasan los 3 argumentos requeridos por el caso de uso
     return this.getSubmissionUseCase.execute(id, user.id, user.role);
   }
 }
