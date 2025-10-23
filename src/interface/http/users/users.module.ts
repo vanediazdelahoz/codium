@@ -1,10 +1,10 @@
-import { Module } from "@nestjs/common"
-import { UsersController } from "./users.controller"
-import { GetUserUseCase } from "@core/application/users/usecases/get-user.usecase"
-import { ListUsersUseCase } from "@core/application/users/usecases/list-users.usecase"
+import { Module } from "@nestjs/common";
+import { UsersController } from "./users.controller";
+import { GetUserUseCase } from "@core/application/users/usecases/get-user.usecase";
+import { ListUsersUseCase } from "@core/application/users/usecases/list-users.usecase";
 import { USER_REPOSITORY } from "@core/domain/users/user.repository.port";
-import { UserPrismaRepository } from "@infrastructure/database/prisma/user-prisma.repository"
-import { PrismaService } from "@infrastructure/database/prisma.service"
+import { UserPrismaRepository } from "@infrastructure/database/prisma/user-prisma.repository";
+import { PrismaService } from "@infrastructure/database/prisma.service";
 
 @Module({
   controllers: [UsersController],
@@ -17,5 +17,6 @@ import { PrismaService } from "@infrastructure/database/prisma.service"
       useClass: UserPrismaRepository,
     },
   ],
+  exports: [USER_REPOSITORY], // <-- AÑADIDO: Hace que el repositorio sea público
 })
 export class UsersModule {}

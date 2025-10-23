@@ -29,5 +29,6 @@ import { PrismaService } from "@infrastructure/database/prisma.service";
       useClass: ChallengePrismaRepository, // La clase concreta que la implementa
     },
   ],
+  exports: [CHALLENGE_REPOSITORY], // <-- AÑADE ESTA LÍNEA
 })
 export class ChallengesModule {}
