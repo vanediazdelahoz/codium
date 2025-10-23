@@ -1,17 +1,18 @@
-import { Module } from "@nestjs/common"
-import { ConfigModule } from "@nestjs/config"
-import { BullModule } from "@nestjs/bull"
-import { APP_GUARD } from "@nestjs/core"
-import { Reflector } from "@nestjs/core"
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { BullModule } from "@nestjs/bull";
+import { APP_GUARD } from "@nestjs/core";
+import { Reflector } from "@nestjs/core";
 
-import { AuthModule } from "./interface/http/auth/auth.module"
-import { UsersModule } from "./interface/http/users/users.module"
-import { ChallengesModule } from "./interface/http/challenges/challenges.module"
-import { SubmissionsModule } from "./interface/http/submissions/submissions.module"
-import { CoursesModule } from "./interface/http/courses/courses.module"
-import { JwtAuthGuard } from "./interface/http/auth/guards/jwt-auth.guard"
-import { RolesGuard } from "./interface/http/auth/guards/roles.guard"
-import { PrismaService } from "./infrastructure/database/prisma.service"
+import { AuthModule } from "./interface/http/auth/auth.module";
+import { UsersModule } from "./interface/http/users/users.module";
+import { ChallengesModule } from "./interface/http/challenges/challenges.module";
+import { SubmissionsModule } from "./interface/http/submissions/submissions.module";
+import { CoursesModule } from "./interface/http/courses/courses.module";
+import { JwtAuthGuard } from "./interface/http/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "./interface/http/auth/guards/roles.guard";
+import { PrismaService } from "./infrastructure/database/prisma.service";
+import { TestCasesModule } from "./interface/http/test-cases/test-case.module"; // <-- AÑADIDO
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PrismaService } from "./infrastructure/database/prisma.service"
     ChallengesModule,
     SubmissionsModule,
     CoursesModule,
+    TestCasesModule, // <-- AÑADIDO
   ],
   providers: [
     PrismaService,
