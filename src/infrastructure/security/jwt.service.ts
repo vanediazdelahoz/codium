@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-// CORREGIDO: Se elimina la palabra 'type' para que la importación sea real
 import { JwtService as NestJwtService } from "@nestjs/jwt"; 
 import { ConfigService } from "@nestjs/config";
 

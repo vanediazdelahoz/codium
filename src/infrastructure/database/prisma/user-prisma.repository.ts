@@ -37,6 +37,6 @@ export class UserPrismaRepository implements UserRepositoryPort {
   }
 
   private toDomain(prismaUser: any): User {
-    return new User(prismaUser); // El constructor ya acepta un objeto 'props'
+    return new User(prismaUser);
   }
 }

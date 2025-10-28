@@ -4,9 +4,8 @@ import * as bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("Seeding database...");
 
-  // Create admin user
   const adminPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.upsert({
     where: { email: "admin@codium.com" },
@@ -16,11 +15,10 @@ async function main() {
       password: adminPassword,
       firstName: "Admin",
       lastName: "User",
-      role: "ADMIN", // CORREGIDO: Usar string
+      role: "ADMIN",
     },
   });
 
-  // Create professor
   const professorPassword = await bcrypt.hash("professor123", 10);
   const professor = await prisma.user.upsert({
     where: { email: "professor@codium.com" },
@@ -30,11 +28,10 @@ async function main() {
       password: professorPassword,
       firstName: "John",
       lastName: "Doe",
-      role: "PROFESSOR", // CORREGIDO: Usar string
+      role: "PROFESSOR",
     },
   });
 
-  // Create students
   const studentPassword = await bcrypt.hash("student123", 10);
   const student1 = await prisma.user.upsert({
     where: { email: "student1@codium.com" },
@@ -44,7 +41,7 @@ async function main() {
       password: studentPassword,
       firstName: "Alice",
       lastName: "Smith",
-      role: "STUDENT", // CORREGIDO: Usar string
+      role: "STUDENT",
     },
   });
 
@@ -56,11 +53,10 @@ async function main() {
       password: studentPassword,
       firstName: "Bob",
       lastName: "Johnson",
-      role: "STUDENT", // CORREGIDO: Usar string
+      role: "STUDENT",
     },
   });
 
-  // Create course
   const course = await prisma.course.upsert({
     where: { code: "NRC12345" },
     update: {},
@@ -75,7 +71,6 @@ async function main() {
     },
   });
 
-  // Enroll students
   await prisma.courseStudent.createMany({
     data: [
       { courseId: course.id, studentId: student1.id },
@@ -84,16 +79,15 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Create sample challenge
   await prisma.challenge.create({
     data: {
       title: "Two Sum",
       description: "Dado un arreglo de enteros nums y un entero target, devuelve los índices de los dos números que suman target.",
-      difficulty: "EASY", // CORREGIDO: Usar string
+      difficulty: "EASY",
       tags: ["arrays", "hashmap"],
       timeLimit: 1500,
       memoryLimit: 256,
-      status: "PUBLISHED", // CORREGIDO: Usar string
+      status: "PUBLISHED",
       courseId: course.id,
       createdById: professor.id,
       testCases: {
@@ -117,8 +111,8 @@ async function main() {
     },
   });
 
-  console.log("✅ Database seeded successfully!");
-  console.log("\n📝 Test credentials:");
+  console.log("Database seeded successfully!");
+  console.log("\nTest credentials:");
   console.log("Admin: admin@codium.com / admin123");
   console.log("Professor: professor@codium.com / professor123");
   console.log("Student: student1@codium.com / student123");
@@ -126,7 +120,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error("❌ Error seeding database:", e);
+    console.error("Error seeding database:", e);
     process.exit(1);
   })
   .finally(async () => {

@@ -4,7 +4,6 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
-// Interfaz para definir las propiedades del constructor
 interface UserProps {
   id: string;
   email: string;
@@ -26,7 +25,6 @@ export class User {
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
-  // CORREGIDO: El constructor ahora acepta un solo objeto de propiedades
   constructor(props: UserProps) {
     this.id = props.id;
     this.email = props.email;
@@ -42,7 +40,6 @@ export class User {
     return `${this.firstName} ${this.lastName}`;
   }
   
-  // ... (el resto de tus métodos como isAdmin, isProfessor, etc.)
   isAdmin(): boolean {
     return this.role === UserRole.ADMIN;
   }

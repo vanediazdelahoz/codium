@@ -1,196 +1,79 @@
-# Codium - Plataforma de Evaluación de Algoritmos
+# Codium - Plataforma para Evaluar Algoritmos 💻
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-Plataforma backend tipo juez online (similar a HackerRank, LeetCode) construida con Clean Architecture.
+## 📖 Introducción
+**Codium** es una plataforma backend que funciona como un juez en línea, similar a plataformas como HackerRank o LeetCode. Permite a los administradores y profesores publicar retos de programación, y a los estudiantes enviar sus soluciones en diferentes lenguajes (Python, Node.js, C++, Java). Las soluciones son ejecutadas en contenedores aislados (sandbox) para calificarlas automáticamente contra un conjunto de casos de prueba.
 
-## Características
+Este proyecto fue desarrollado como parte del curso "Desarrollo de Aplicaciones Backend" de la Universidad del Norte.
 
-- Autenticación JWT con roles (STUDENT, PROFESSOR, ADMIN)
-- CRUD de retos algorítmicos
-- Gestión de cursos
-- Ejecución de código en contenedores aislados
-- Soporte para Python, Java, Node.js y C++
-- Procesamiento asíncrono con Redis y Bull
-- Calificación automática con casos de prueba
+## 🏛️ Arquitectura
+El proyecto sigue estrictamente los principios de **Clean Architecture**, separando el código en las siguientes capas principales:
+* **`Domain`**: Contiene las entidades y reglas de negocio más puras.
+* **`Application`**: Orquesta los flujos de datos a través de los casos de uso.
+* **`Infrastructure`**: Implementa los detalles técnicos como la base de datos, colas y servicios externos.
+* **`Interface`**: Expone la aplicación al mundo exterior, en este caso, a través de una API REST.
 
-## Tecnologías
+### Stack Tecnológico
+* **API Backend:** Node.js + NestJS
+* **Base de Datos:** PostgreSQL
+* **Cola de Mensajes:** Redis con Bull
+* **Autenticación:** JWT (JSON Web Tokens)
+* **Contenerización:** Docker y Docker Compose (obligatorio)
 
-- **Backend**: NestJS + TypeScript
-- **Base de datos**: PostgreSQL
-- **Cola de trabajos**: Redis + Bull
-- **Contenedores**: Docker + Docker Compose
-- **Arquitectura**: Clean Architecture
+## 🚀 Cómo Empezar
+Sigue estos pasos para levantar el proyecto en tu entorno local.
 
-## Requisitos
+### Prerrequisitos
+* Tener instalado **Docker Desktop** y asegurarse de que se esté ejecutando.
 
-- Docker >= 20.10
-- Docker Compose >= 2.0
-- Node.js >= 20 (solo para desarrollo local)
+### Configuración
+1.  **Clona el repositorio:**
+    ```bash
+    git clone https://github.com/vanediazdelahoz/codium
+    cd codium
+    ```
 
-## Instalación y Ejecución
+2.  **Crea el archivo de entorno:**
+    Copia el archivo `.env.example` y renómbralo a `.env`.
+    ```bash
+    cp .env.example .env
+    ```
+    Abre el archivo `.env` y asegúrate de que la variable `JWT_SECRET` tenga un valor secreto, largo y seguro.
 
-### Desarrollo
+3.  **Construye y levanta los contenedores:**
+    Este comando construirá las imágenes de Docker, iniciará todos los servicios (API, base de datos, Redis, workers), aplicará las migraciones de la base de datos y ejecutará el script de "seed" para poblar la base de datos con datos de prueba.
+    ```bash
+    docker-compose up -d --build
+    ```
+    *Nota: La primera vez que ejecutes este comando puede tardar varios minutos.*
 
-\`\`\`bash
-# Clonar el repositorio
-git clone <repo-url>
-cd codium
+## ⚙️ Uso de la API
+Una vez que los contenedores estén corriendo, la aplicación estará disponible:
 
-# Copiar variables de entorno
-cp .env.example .env
+* **API Base URL:** `http://localhost:3000`
+* **Documentación Interactiva (Swagger):** **`http://localhost:3000/docs`**
 
-# Iniciar servicios
-make dev
+### Credenciales de Prueba
+El script de "seed" crea los siguientes usuarios para que puedas probar la plataforma:
 
-# Ver logs
-make logs
+* **Administrador:**
+    * **Email:** `admin@codium.com`
+    * **Contraseña:** `admin123`
+* **Profesor:**
+    * **Email:** `professor@codium.com`
+    * **Contraseña:** `professor123`
+* **Estudiante:**
+    * **Email:** `student1@codium.com`
+    * **Contraseña:** `student123`
 
-# Ver logs solo del API
-make logs-api
-\`\`\`
+Puedes usar estas credenciales en el endpoint `/api/auth/login` para obtener un token JWT y probar las rutas protegidas.
 
-La API estará disponible en: http://localhost:3000/api
+## ✅ Módulos Implementados
+El proyecto incluye la implementación de los siguientes módulos principales, según los requerimientos:
+* **Autenticación y Autorización** (Módulo 1)
+* **Gestión de Retos** (Módulo 2)
+* **Submissions (Envíos)** (Módulo 3)
+* **Gestión de Cursos** (Módulo 5)
 
-Documentación Swagger: http://localhost:3000/docs
-
-### Inicializar Base de Datos
-
-\`\`\`bash
-# Ejecutar migraciones
-bash scripts/init-db.sh
-
-# Sembrar datos de prueba
-bash scripts/seed-db.sh
-\`\`\`
-
-Usuario de prueba:
-- Email: admin@codium.com
-- Password: admin123
-
-### Escalar Workers
-
-\`\`\`bash
-# Escalar worker de Python a 3 instancias
-make scale service=worker-python replicas=3
-
-# Escalar todos los workers
-make scale-all-workers
-\`\`\`
-
-## Estructura del Proyecto
-
-\`\`\`
-codium/
-├── src/
-│   ├── domain/              # Entidades y reglas de negocio
-│   ├── application/         # Casos de uso
-│   ├── infrastructure/      # Implementaciones (DB, Redis, etc)
-│   └── presentation/        # Controllers, DTOs, Guards
-├── workers/                 # Workers por lenguaje
-│   ├── python-worker/
-│   ├── java-worker/
-│   ├── nodejs-worker/
-│   └── cpp-worker/
-├── docker-compose.yml
-└── Dockerfile
-\`\`\`
-
-## API Endpoints
-
-### Autenticación
-
-- `POST /api/auth/register` - Registrar usuario
-- `POST /api/auth/login` - Iniciar sesión
-
-### Retos
-
-- `GET /api/challenges` - Listar retos
-- `GET /api/challenges/:id` - Obtener reto
-- `POST /api/challenges` - Crear reto (ADMIN/PROFESSOR)
-- `PUT /api/challenges/:id` - Actualizar reto (ADMIN/PROFESSOR)
-- `DELETE /api/challenges/:id` - Eliminar reto (ADMIN/PROFESSOR)
-- `POST /api/challenges/:id/test-cases` - Agregar caso de prueba
-
-### Submissions
-
-- `POST /api/submissions` - Enviar solución
-- `GET /api/submissions/:id` - Ver resultado
-- `GET /api/submissions/user/:userId` - Submissions de un usuario
-
-### Cursos
-
-- `GET /api/courses` - Listar cursos
-- `POST /api/courses` - Crear curso (PROFESSOR/ADMIN)
-- `POST /api/courses/:id/enroll` - Inscribir estudiante
-
-## Comandos Útiles
-
-\`\`\`bash
-# Detener servicios
-make down
-
-# Limpiar todo (volúmenes incluidos)
-make clean
-
-# Reconstruir imágenes
-make build
-
-# Reiniciar servicios
-make restart
-
-# Producción
-make prod-up
-\`\`\`
-
-## Arquitectura Clean
-
-El proyecto sigue los principios de Clean Architecture:
-
-1. **Domain**: Entidades y reglas de negocio puras
-2. **Application**: Casos de uso (lógica de aplicación)
-3. **Infrastructure**: Implementaciones concretas (DB, Redis, etc)
-4. **Presentation**: Controllers, DTOs, Guards
-
-## Flujo de Submission
-
-1. Estudiante envía código → API
-2. API guarda submission (status: QUEUED)
-3. API encola job en Redis
-4. Worker toma el job
-5. Worker lanza contenedor aislado (runner)
-6. Runner ejecuta código con casos de prueba
-7. Worker actualiza resultado en DB
-8. Estudiante consulta resultado
-
-## Desarrollo
-
-\`\`\`bash
-# Instalar dependencias
-npm install
-
-# Desarrollo local (sin Docker)
-npm run start:dev
-
-# Tests
-npm run test
-
-# Linting
-npm run lint
-\`\`\`
-
-## Entrega Semana 2 (23 Octubre)
-
-- [x] Diseño de modelos y capas
-- [x] Implementar auth + CRUD retos
-- [x] Montar Compose con api + db + redis
-- [x] Workers stub con Redis
-
-## Próximos Pasos (Semana 5)
-
-- [ ] Implementar runners efímeros
-- [ ] Guardar resultados + leaderboard
-- [ ] Logs y métricas
-- [ ] Bonus: Kubernetes
-
-## Licencia
-
-MIT
+---
+_Proyecto desarrollado por Carlos Avendaño, Vanessa Diaz y Oskleiderbeth Vasquez - 2025_

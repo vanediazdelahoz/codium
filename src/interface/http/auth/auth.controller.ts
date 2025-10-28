@@ -1,6 +1,5 @@
-import { Controller, Post, Body } from "@nestjs/common"; // Importar @Body
+import { Controller, Post, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
-// CORREGIDO: Las rutas ahora apuntan a la carpeta 'auth'
 import { LoginUseCase } from "@core/application/auth/usecases/login.usecase";
 import { RegisterUseCase } from "@core/application/auth/usecases/register.usecase";
 import { LoginDto } from "@core/application/auth/dto/login.dto";
@@ -19,7 +18,7 @@ export class AuthController {
   @Post("register")
   @ApiOperation({ summary: "Register a new user" })
   @ApiResponse({ status: 201, description: "User registered successfully" })
-  async register(@Body() dto: RegisterDto) { // Usar @Body() para capturar los datos
+  async register(@Body() dto: RegisterDto) {
     return this.registerUseCase.execute(dto);
   }
 
@@ -27,7 +26,7 @@ export class AuthController {
   @Post("login")
   @ApiOperation({ summary: "Login user" })
   @ApiResponse({ status: 200, description: "Login successful" })
-  async login(@Body() dto: LoginDto) { // Usar @Body() para capturar los datos
+  async login(@Body() dto: LoginDto) {
     return this.loginUseCase.execute(dto);
   }
 }

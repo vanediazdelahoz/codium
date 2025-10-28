@@ -4,8 +4,8 @@ import { USER_REPOSITORY, UserRepositoryPort } from '@core/domain/users/user.rep
 import { RegisterDto } from '../dto/register.dto';
 import { UserDto } from '../../users/dto/user.dto';
 import { UserMapper } from '../../users/mappers/user.mapper';
-import { User, UserRole } from '@core/domain/users/user.entity'; // <-- Importar la entidad User
-import { v4 as uuidv4 } from 'uuid'; // <-- Importar para generar IDs
+import { User, UserRole } from '@core/domain/users/user.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class RegisterUseCase {
@@ -23,7 +23,6 @@ export class RegisterUseCase {
 
     const hashedPassword = await this.bcryptService.hash(dto.password);
 
-    // 1. Crear una instancia de la entidad User
     const newUser = new User({
       id: uuidv4(),
       email: dto.email,
@@ -35,10 +34,8 @@ export class RegisterUseCase {
       updatedAt: new Date(),
     });
 
-    // 2. Pasar la instancia completa al repositorio
     const createdUser = await this.userRepository.create(newUser);
 
-    // 3. Mapear la respuesta a un DTO seguro
     return UserMapper.toDto(createdUser);
   }
 }
