@@ -1,12 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-RUN apk add --no-cache python3 py3-pip docker-cli
+# Instalar Python, pip y Docker CLI
+RUN apt-get update && apt-get install -y python3 python3-pip docker.io
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-
-CMD ["npm", "start"]

@@ -1,12 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-RUN apk add --no-cache docker-cli
+# Instalar Docker CLI
+RUN apt-get update && apt-get install -y docker.io
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-
-CMD ["npm", "start"]

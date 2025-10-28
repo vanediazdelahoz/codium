@@ -1,12 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-RUN apk add --no-cache g++ docker-cli
+# Instalar el compilador de C++ (g++) y Docker CLI
+RUN apt-get update && apt-get install -y g++ docker.io
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-
-CMD ["npm", "start"]

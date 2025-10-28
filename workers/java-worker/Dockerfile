@@ -1,12 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-RUN apk add --no-cache openjdk17 docker-cli
+# Instalar Java (OpenJDK 17) y Docker CLI
+RUN apt-get update && apt-get install -y openjdk-17-jdk docker.io
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
-
-CMD ["npm", "start"]
