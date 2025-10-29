@@ -1,16 +1,15 @@
 {
-  "name": "codium-python-worker",
+  "name": "codium-worker",
   "version": "1.0.0",
-  "description": "Worker para procesar submissions en Python",
-  "main": "worker.ts",
+  "description": "Worker para procesar submissions",
+  "main": "dist/worker.js",
   "scripts": {
-    "start": "ts-node worker.ts"
+    "build": "tsc",
+    "start": "node dist/worker.js"
   },
-  "dependencies": {
-    "bull": "^4.12.0",
-    "redis": "^4.6.12"
-  },
+  "dependencies": { "bull": "^4.12.0", "redis": "^4.6.12" },
   "devDependencies": {
+    "@types/bull": "^4.10.0",
     "@types/node": "^20.10.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
