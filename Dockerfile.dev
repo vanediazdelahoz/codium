@@ -2,21 +2,14 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Instala solo las dependencias de sistema necesarias para compilar paquetes
-RUN apt-get update && apt-get install -y build-essential python3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copia los archivos de dependencias
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 
-# Instala pnpm y luego las dependencias del proyecto de forma eficiente
 RUN npm install -g pnpm
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
-# Copia el resto del código fuente de la aplicación
 COPY . .
 
-# Expone el puerto que la aplicación usará
 EXPOSE 3000
-
-# No se necesita CMD, porque el docker-compose.yml define el 'command' y lo anula.
