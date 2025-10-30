@@ -18,12 +18,11 @@ export class CoursePrismaRepository implements CourseRepositoryPort {
         group: course.group,
         createdAt: course.createdAt,
         updatedAt: course.updatedAt,
-        // CORREGIDO: Sintaxis correcta para relaciones many-to-many en Prisma
         professors: {
           connect: course.professorIds.map((id) => ({ id })),
         },
       },
-      include: { professors: { select: { id: true } } }, // Devolver IDs para el toDomain
+      include: { professors: { select: { id: true } } },
     });
     return this.toDomain(created);
   }
@@ -98,21 +97,19 @@ export class CoursePrismaRepository implements CourseRepositoryPort {
   async findStudentsByCourseId(courseId: string): Promise<User[]> {
       const enrollments = await this.prisma.courseStudent.findMany({
           where: { courseId },
-          include: { student: true } // Incluir el objeto de usuario completo
+          include: { student: true }
       });
-      // Aquí necesitarías un UserMapper si quieres devolver instancias de la entidad User
       return enrollments.map(e => e.student as any);
   }
 
   private toDomain(prismaCourse: any): Course {
-    // CORREGIDO: Devuelve una instancia de la clase Course
     return new Course({
       id: prismaCourse.id,
       name: prismaCourse.name,
       code: prismaCourse.code,
       period: prismaCourse.period,
       group: prismaCourse.group,
-      professorIds: prismaCourse.professors.map((p: any) => p.id), // Extraer IDs de la relación
+      professorIds: prismaCourse.professors.map((p: any) => p.id),
       createdAt: prismaCourse.createdAt,
       updatedAt: prismaCourse.updatedAt,
     });

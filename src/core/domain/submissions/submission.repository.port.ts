@@ -1,7 +1,7 @@
 import { Submission, SubmissionStatus } from "./submission.entity";
 
 export interface SubmissionRepositoryPort {
-  create(submission: Submission): Promise<Submission>; // Acepta la entidad completa
+  create(submission: Submission): Promise<Submission>;
   findById(id: string): Promise<Submission | null>;
   findByUserId(userId: string): Promise<Submission[]>;
   findByChallengeId(challengeId: string): Promise<Submission[]>;

@@ -40,7 +40,6 @@ export class Challenge {
   public readonly updatedAt: Date;
   
   constructor(props: ChallengeProps) {
-    // Asignar propiedades desde el objeto props
     this.id = props.id;
     this.title = props.title;
     this.description = props.description;

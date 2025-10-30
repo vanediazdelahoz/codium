@@ -7,7 +7,6 @@ import { Submission, SubmissionStatus, Language, TestCaseResult } from "@core/do
 export class SubmissionPrismaRepository implements SubmissionRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ... (los métodos create, findById, etc. están bien y no necesitan cambios)
   async create(submission: Submission): Promise<Submission> {
     const created = await this.prisma.submission.create({
       data: {
@@ -60,19 +59,17 @@ export class SubmissionPrismaRepository implements SubmissionRepositoryPort {
   }
 
   async update(id: string, data: Partial<Submission>): Promise<Submission> {
-    // CORREGIDO: Mapeamos el Partial<Submission> a un objeto que Prisma entienda.
     const { id: submissionId, createdAt, updatedAt, code, results, ...restOfData } = data;
     
     const updated = await this.prisma.submission.update({
       where: { id },
-      data: restOfData, // Pasamos solo los datos primitivos actualizables
+      data: restOfData,
       include: { results: true },
     });
     return this.toDomain(updated);
   }
   
   async updateStatus(id: string, status: SubmissionStatus, results?: any): Promise<Submission> {
-      // Implementación futura
       throw new Error("Method not implemented.");
   }
 

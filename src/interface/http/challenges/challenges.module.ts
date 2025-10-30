@@ -4,21 +4,21 @@ import { CreateChallengeUseCase } from "@core/application/challenges/usecases/cr
 import { UpdateChallengeUseCase } from "@core/application/challenges/usecases/update-challenge.usecase";
 import { ListChallengesUseCase } from "@core/application/challenges/usecases/list-challenges.usecase";
 import { GetChallengeUseCase } from "@core/application/challenges/usecases/get-challenge.usecase";
-import { DeleteChallengeUseCase } from "@core/application/challenges/usecases/delete-challenge.usecase"; // <-- Importar
+import { DeleteChallengeUseCase } from "@core/application/challenges/usecases/delete-challenge.usecase";
 import { CHALLENGE_REPOSITORY } from "@core/domain/challenges/challenge.repository.port";
 import { ChallengePrismaRepository } from "@infrastructure/database/prisma/challenge-prisma.repository";
 import { PrismaService } from "@infrastructure/database/prisma.service";
-import { TestCasesModule } from "../test-cases/test-case.module"; // <-- Importar
+import { TestCasesModule } from "../test-cases/test-case.module";
 
 @Module({
-  imports: [TestCasesModule], // <-- Añadir a imports
+  imports: [TestCasesModule],
   controllers: [ChallengesController],
   providers: [
     CreateChallengeUseCase,
     UpdateChallengeUseCase,
     ListChallengesUseCase,
     GetChallengeUseCase,
-    DeleteChallengeUseCase, // <-- AÑADIR A LA LISTA DE PROVEEDORES
+    DeleteChallengeUseCase,
     PrismaService,
     {
       provide: CHALLENGE_REPOSITORY,

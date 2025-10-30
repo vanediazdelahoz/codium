@@ -54,7 +54,7 @@ model User {
 
   submissions      Submission[]
   coursesEnrolled  CourseStudent[]
-  coursesProfessor Course[]      @relation("CourseProfessors") // <-- CORREGIDO
+  coursesProfessor Course[]      @relation("CourseProfessors")
   createdChallenges Challenge[]
 
   @@map("users")
@@ -69,7 +69,7 @@ model Course {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  professors  User[]       @relation("CourseProfessors") // <-- CORREGIDO
+  professors  User[]       @relation("CourseProfessors")
   students    CourseStudent[]
   challenges  Challenge[]
   submissions Submission[]

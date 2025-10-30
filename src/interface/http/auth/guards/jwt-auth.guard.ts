@@ -1,5 +1,4 @@
 import { Injectable, ExecutionContext } from "@nestjs/common";
-// CORREGIDO: Se elimina la palabra 'type' para que la importación sea real
 import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";

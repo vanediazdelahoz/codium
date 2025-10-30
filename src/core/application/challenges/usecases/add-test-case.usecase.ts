@@ -38,7 +38,7 @@ export class AddTestCaseUseCase {
       points: dto.points,
       order: nextOrder,
       createdAt: new Date(),
-      updatedAt: new Date(), // Es bueno añadir updatedAt también
+      updatedAt: new Date(),
     });
 
     return await this.testCaseRepository.create(testCase);

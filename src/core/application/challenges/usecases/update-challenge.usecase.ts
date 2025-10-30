@@ -18,8 +18,7 @@ export class UpdateChallengeUseCase {
       throw new NotFoundException("Challenge not found");
     }
 
-    // Un profesor solo puede editar sus propios retos, un admin puede editar cualquiera.
-    const isOwner = challenge.createdById === userId; // <-- CORREGIDO
+    const isOwner = challenge.createdById === userId;
     const isAdmin = userRole === UserRole.ADMIN;
 
     if (!isOwner && !isAdmin) {

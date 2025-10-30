@@ -3,9 +3,9 @@ import { CHALLENGE_REPOSITORY, ChallengeRepositoryPort } from "@core/domain/chal
 import { CreateChallengeDto } from "../dto/create-challenge.dto";
 import { ChallengeDto } from "../dto/challenge.dto";
 import { ChallengeMapper } from "../mappers/challenge.mapper";
-import { Challenge, ChallengeStatus } from "@core/domain/challenges/challenge.entity"; // Importar la entidad
+import { Challenge, ChallengeStatus } from "@core/domain/challenges/challenge.entity";
 import { UserRole } from "@core/domain/users/user.entity";
-import { v4 as uuidv4 } from 'uuid'; // Importar para generar IDs
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CreateChallengeUseCase {
@@ -19,7 +19,6 @@ export class CreateChallengeUseCase {
       throw new ForbiddenException("Only admins and professors can create challenges");
     }
 
-    // 1. Crear una instancia de la entidad Challenge
     const newChallenge = new Challenge({
       id: uuidv4(),
       ...dto,
@@ -29,10 +28,8 @@ export class CreateChallengeUseCase {
       updatedAt: new Date(),
     });
 
-    // 2. Pasar la instancia completa al repositorio
     const createdChallenge = await this.challengeRepository.create(newChallenge);
 
-    // 3. Mapear a un DTO para la respuesta
     return ChallengeMapper.toDto(createdChallenge);
   }
 }

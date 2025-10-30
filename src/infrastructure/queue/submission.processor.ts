@@ -14,9 +14,6 @@ export class SubmissionProcessor {
     this.logger.log(`[${submissionId}] Lenguaje: ${language}`)
     this.logger.log(`[${submissionId}] Límites: ${timeLimit}ms, ${memoryLimit}MB`)
 
-    // STUB: Por ahora solo logueamos
-    // En la Semana 5 se implementará la ejecución real con Docker
-
     this.logger.log(`[${submissionId}] Submission procesado (STUB)`)
 
     return {

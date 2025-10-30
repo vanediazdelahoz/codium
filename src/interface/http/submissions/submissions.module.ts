@@ -8,15 +8,14 @@ import { SUBMISSION_REPOSITORY } from "@core/domain/submissions/submission.repos
 import { SubmissionPrismaRepository } from "@infrastructure/database/prisma/submission-prisma.repository";
 import { SubmissionProcessor } from "@infrastructure/queue/submission.processor";
 import { PrismaService } from "@infrastructure/database/prisma.service";
-import { ChallengesModule } from "../challenges/challenges.module"; 
-// No necesitas importar el token aquí si no lo usas directamente en el módulo
+import { ChallengesModule } from "../challenges/challenges.module";
 
 @Module({
   imports: [
     BullModule.registerQueue({
       name: "submissions",
     }),
-    ChallengesModule, // Al importar esto, sus proveedores exportados ya están disponibles
+    ChallengesModule,
   ],
   controllers: [SubmissionsController],
   providers: [
@@ -29,7 +28,6 @@ import { ChallengesModule } from "../challenges/challenges.module";
       provide: SUBMISSION_REPOSITORY,
       useClass: SubmissionPrismaRepository,
     },
-    // CHALLENGE_REPOSITORY, <-- LÍNEA ELIMINADA
   ],
 })
 export class SubmissionsModule {}

@@ -1,7 +1,7 @@
 import { Challenge, ChallengeStatus } from "./challenge.entity";
 
 export interface ChallengeRepositoryPort {
-  create(challenge: Challenge): Promise<Challenge>; // Acepta la entidad completa
+  create(challenge: Challenge): Promise<Challenge>;
   findById(id: string): Promise<Challenge | null>;
   findByCourseId(courseId: string): Promise<Challenge[]>;
   findByStatus(status: ChallengeStatus): Promise<Challenge[]>;

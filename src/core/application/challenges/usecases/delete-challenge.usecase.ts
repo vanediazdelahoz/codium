@@ -23,8 +23,6 @@ export class DeleteChallengeUseCase {
       throw new ForbiddenException("No tienes permiso para eliminar este reto");
     }
 
-    // El repositorio se encargará de las eliminaciones en cascada si está configurado en Prisma.
-    // No es necesario eliminar los casos de prueba manualmente.
     await this.challengeRepository.delete(id);
   }
 }

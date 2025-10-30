@@ -7,10 +7,10 @@ import { EnrollStudentUseCase } from "@core/application/courses/usecases/enroll-
 import { COURSE_REPOSITORY } from "@core/domain/courses/course.repository.port";
 import { CoursePrismaRepository } from "@infrastructure/database/prisma/course-prisma.repository";
 import { PrismaService } from "@infrastructure/database/prisma.service";
-import { UsersModule } from "../users/users.module"; // <-- AÑADIDO: Importar el módulo de usuarios
+import { UsersModule } from "../users/users.module";
 
 @Module({
-  imports: [UsersModule], // <-- AÑADIDO: Permite usar los proveedores exportados de UsersModule
+  imports: [UsersModule],
   controllers: [CoursesController],
   providers: [
     CreateCourseUseCase,

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import Bull from "bull"; // CORREGIDO: Importar como default export
+import Bull from "bull";
 
 export interface SubmissionJob {
   submissionId: string;
@@ -11,14 +11,12 @@ export interface SubmissionJob {
 
 @Injectable()
 export class BullService {
-  private submissionsQueue: Bull.Queue; // Usar el tipo Bull.Queue
+  private submissionsQueue: Bull.Queue;
 
   constructor() {
-    // CORREGIDO: Instanciar usando la importación por defecto
     this.submissionsQueue = new Bull("submissions"); 
   }
 
-  // ... (el resto de los métodos no necesitan cambios)
   async addSubmissionJob(job: SubmissionJob): Promise<void> {
     await this.submissionsQueue.add("process-submission", job, {
       attempts: 3,

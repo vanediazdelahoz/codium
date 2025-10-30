@@ -3,7 +3,7 @@ import { COURSE_REPOSITORY, CourseRepositoryPort } from "@core/domain/courses/co
 import { UserRole } from "@core/domain/users/user.entity";
 import { CourseDto } from "../dto/course.dto";
 import { CourseMapper } from "../mappers/course.mapper";
-import { Course } from "@core/domain/courses/course.entity"; // Importar la entidad
+import { Course } from "@core/domain/courses/course.entity";
 
 @Injectable()
 export class ListCoursesUseCase {
@@ -13,14 +13,13 @@ export class ListCoursesUseCase {
   ) {}
 
   async execute(userId: string, userRole: UserRole): Promise<CourseDto[]> {
-    // CORREGIDO: Se especifica el tipo del arreglo para evitar el error 'never[]'
     let courses: Course[] = []; 
     
     if (userRole === UserRole.ADMIN) {
       courses = await this.courseRepository.findAll();
     } else if (userRole === UserRole.PROFESSOR) {
       courses = await this.courseRepository.findByProfessorId(userId);
-    } else { // STUDENT
+    } else {
       courses = await this.courseRepository.findCoursesByStudentId(userId);
     }
     

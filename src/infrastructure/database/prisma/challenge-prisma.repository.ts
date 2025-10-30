@@ -19,7 +19,7 @@ export class ChallengePrismaRepository implements ChallengeRepositoryPort {
         memoryLimit: challenge.memoryLimit,
         status: challenge.status,
         courseId: challenge.courseId,
-        createdById: challenge.createdById, // Corregido el nombre del campo
+        createdById: challenge.createdById,
         createdAt: challenge.createdAt,
         updatedAt: challenge.updatedAt,
       },
@@ -57,7 +57,6 @@ export class ChallengePrismaRepository implements ChallengeRepositoryPort {
   }
 
   private toDomain(prismaChallenge: any): Challenge {
-    // Devuelve una instancia de la clase Challenge, no un objeto simple
     return new Challenge({
       id: prismaChallenge.id,
       title: prismaChallenge.title,
@@ -68,7 +67,7 @@ export class ChallengePrismaRepository implements ChallengeRepositoryPort {
       memoryLimit: prismaChallenge.memoryLimit,
       status: prismaChallenge.status as ChallengeStatus,
       courseId: prismaChallenge.courseId,
-      createdById: prismaChallenge.createdById, // Corregido el nombre del campo
+      createdById: prismaChallenge.createdById,
       createdAt: prismaChallenge.createdAt,
       updatedAt: prismaChallenge.updatedAt,
     });

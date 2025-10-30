@@ -6,7 +6,7 @@ import { UserMapper } from "../mappers/user.mapper";
 @Injectable()
 export class ListUsersUseCase {
   constructor(
-    @Inject(USER_REPOSITORY) // <-- ESTO ERA LO QUE FALTABA
+    @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
   ) {}
 

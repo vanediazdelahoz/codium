@@ -5,7 +5,7 @@ interface CourseProps {
   period: string;
   group: number;
   professorIds: string[];
-  studentIds?: string[]; // Opcional, se maneja en la tabla de unión
+  studentIds?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +38,6 @@ export class Course {
   }
 }
 
-// También es útil tener la entidad para la tabla de unión
 interface CourseStudentProps {
     courseId: string;
     studentId: string;

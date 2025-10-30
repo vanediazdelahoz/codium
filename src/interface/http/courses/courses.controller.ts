@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Param, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-// CORREGIDO: Se elimina la palabra 'type' de todas las importaciones de clases
 import { CreateCourseUseCase } from "@core/application/courses/usecases/create-course.usecase";
 import { ListCoursesUseCase } from "@core/application/courses/usecases/list-courses.usecase";
 import { GetCourseUseCase } from "@core/application/courses/usecases/get-course.usecase";

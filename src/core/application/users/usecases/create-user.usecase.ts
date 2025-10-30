@@ -3,8 +3,8 @@ import { USER_REPOSITORY, UserRepositoryPort } from "@core/domain/users/user.rep
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UserDto } from "../dto/user.dto";
 import { UserMapper } from "../mappers/user.mapper";
-import { User } from "@core/domain/users/user.entity"; // Importar la entidad
-import { v4 as uuidv4 } from 'uuid'; // Importar para IDs
+import { User } from "@core/domain/users/user.entity";
+import { v4 as uuidv4 } from 'uuid';
 import { BcryptService } from "@infrastructure/security/bcrypt.service";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CreateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
-    private readonly bcryptService: BcryptService, // Inyectar servicio de hashing
+    private readonly bcryptService: BcryptService,
   ) {}
 
   async execute(dto: CreateUserDto): Promise<UserDto> {

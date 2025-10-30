@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Query, Body, Delete } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-// CORREGIDO: Se elimina la palabra 'type' para que las importaciones sean reales
 import { CreateChallengeUseCase } from "@core/application/challenges/usecases/create-challenge.usecase";
 import { UpdateChallengeUseCase } from "@core/application/challenges/usecases/update-challenge.usecase";
 import { ListChallengesUseCase } from "@core/application/challenges/usecases/list-challenges.usecase";

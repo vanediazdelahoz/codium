@@ -1,4 +1,7 @@
 import Bull, { Job } from "bull";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const REDIS_HOST = process.env.REDIS_HOST || "localhost";
 const REDIS_PORT = Number.parseInt(process.env.REDIS_PORT || "6379");

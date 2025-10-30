@@ -1,5 +1,4 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
-// CORREGIDO: Se elimina la palabra 'type' para que la importación sea real
 import { Reflector } from "@nestjs/core";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 import type { UserRole } from "@core/domain/users/user.entity";

@@ -5,8 +5,8 @@ import { Queue } from "bull";
 import { SUBMISSION_REPOSITORY, SubmissionRepositoryPort } from "@core/domain/submissions/submission.repository.port";
 import { CHALLENGE_REPOSITORY, ChallengeRepositoryPort } from "@core/domain/challenges/challenge.repository.port";
 import { Submission, SubmissionStatus } from "@core/domain/submissions/submission.entity";
-import { SubmitSolutionDto } from "../dto/submit-solution.dto"; // DTO de entrada
-import { SubmissionDto } from "../dto/submission.dto"; // DTO de salida
+import { SubmitSolutionDto } from "../dto/submit-solution.dto";
+import { SubmissionDto } from "../dto/submission.dto";
 import { SubmissionMapper } from "../mappers/submission.mapper";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class SubmitSolutionUseCase {
     private readonly submissionRepository: SubmissionRepositoryPort,
     @Inject(CHALLENGE_REPOSITORY)
     private readonly challengeRepository: ChallengeRepositoryPort,
-    @InjectQueue('submissions') // Inyecta la cola de Bull correctamente
+    @InjectQueue('submissions')
     private readonly submissionQueue: Queue,
   ) {}
 
@@ -26,7 +26,7 @@ export class SubmitSolutionUseCase {
 
     const submission = new Submission({
       id: uuidv4(),
-      userId: userId, // Usar el ID del usuario autenticado
+      userId: userId,
       challengeId: dto.challengeId,
       courseId: dto.courseId,
       code: dto.code,

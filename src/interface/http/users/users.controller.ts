@@ -1,6 +1,5 @@
-import { Controller, Get, Param } from "@nestjs/common"; // Se añade Param
+import { Controller, Get, Param } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-// CORREGIDO: Se elimina la palabra 'type' para que las importaciones sean reales
 import { GetUserUseCase } from "@core/application/users/usecases/get-user.usecase";
 import { ListUsersUseCase } from "@core/application/users/usecases/list-users.usecase";
 import { Roles } from "../auth/decorators/roles.decorator";
@@ -24,7 +23,7 @@ export class UsersController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get user by ID" })
-  async getUser(@Param("id") id: string) { // Se añade @Param("id") para capturar el valor
+  async getUser(@Param("id") id: string) {
     return this.getUserUseCase.execute(id);
   }
 }

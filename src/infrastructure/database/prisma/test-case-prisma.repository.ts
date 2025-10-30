@@ -35,6 +35,6 @@ export class TestCasePrismaRepository implements TestCaseRepositoryPort {
   }
 
   private toDomain(prismaTestCase: any): TestCase {
-    return new TestCase(prismaTestCase); // El constructor ya acepta un objeto 'props'
+    return new TestCase(prismaTestCase);
   }
 }

@@ -11,13 +11,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
   const port = configService.get<number>("PORT", 3000)
   
-  // Nota: No necesitas leer el API_PREFIX aquí si lo vas a poner directamente
   const apiPrefix = "api" 
   
-  // Global prefix
   app.setGlobalPrefix(apiPrefix)
 
-  // Validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -29,10 +26,8 @@ async function bootstrap() {
     }),
   )
 
-  // CORS
   app.enableCors()
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle("Codium API")
     .setDescription("Plataforma para evaluar algoritmos - Juez Online")
@@ -46,7 +41,6 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  // La ruta para la documentación ahora es /docs
   SwaggerModule.setup("docs", app, document) 
 
   await app.listen(port)

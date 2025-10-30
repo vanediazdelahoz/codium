@@ -1,6 +1,5 @@
 import { IsString, IsNotEmpty, IsEnum, IsUUID } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-// CORREGIDO: La ruta ahora apunta a la ubicación correcta de la entidad Submission.
 import { Language } from "@core/domain/submissions/submission.entity";
 
 export class SubmitSolutionDto {

@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Param, Body } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-// CORREGIDO: Se elimina la palabra 'type' de todas las importaciones de clases
 import { SubmitSolutionUseCase } from "@core/application/submissions/usecases/submit-solution.usecase";
 import { GetSubmissionUseCase } from "@core/application/submissions/usecases/get-submission.usecase";
 import { ListUserSubmissionsUseCase } from "@core/application/submissions/usecases/list-user-submissions.usecase";

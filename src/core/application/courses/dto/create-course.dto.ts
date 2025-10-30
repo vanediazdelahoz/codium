@@ -25,5 +25,5 @@ export class CreateCourseDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsUUID()
-  professorId: string; // La propiedad que faltaba
+  professorId: string;
 }

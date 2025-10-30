@@ -12,7 +12,7 @@ import { CoursesModule } from "./interface/http/courses/courses.module";
 import { JwtAuthGuard } from "./interface/http/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "./interface/http/auth/guards/roles.guard";
 import { PrismaService } from "./infrastructure/database/prisma.service";
-import { TestCasesModule } from "./interface/http/test-cases/test-case.module"; // <-- AÑADIDO
+import { TestCasesModule } from "./interface/http/test-cases/test-case.module";
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { TestCasesModule } from "./interface/http/test-cases/test-case.module"; 
     ChallengesModule,
     SubmissionsModule,
     CoursesModule,
-    TestCasesModule, // <-- AÑADIDO
+    TestCasesModule,
   ],
   providers: [
     PrismaService,

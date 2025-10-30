@@ -21,7 +21,6 @@ export class TestCase {
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
-  // CORREGIDO: El constructor ahora acepta un solo objeto de propiedades
   constructor(props: TestCaseProps) {
     this.id = props.id;
     this.challengeId = props.challengeId;

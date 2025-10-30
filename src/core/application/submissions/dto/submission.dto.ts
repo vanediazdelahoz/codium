@@ -1,6 +1,5 @@
 import { Language, SubmissionStatus } from '@core/domain/submissions/submission.entity';
 
-// Define la forma de un resultado de caso de prueba individual
 export class TestCaseResultDto {
   testCaseId: string;
   status: SubmissionStatus;
@@ -8,7 +7,6 @@ export class TestCaseResultDto {
   memoryMb: number;
 }
 
-// Define la forma del objeto de envío completo
 export class SubmissionDto {
   id: string;
   userId: string;
