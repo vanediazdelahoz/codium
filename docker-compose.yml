@@ -6,12 +6,9 @@ services:
       POSTGRES_USER: codium
       POSTGRES_PASSWORD: codium_password
       POSTGRES_DB: codium_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - codium-network
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    networks: ["codium-network"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codium"]
       interval: 10s
@@ -21,12 +18,9 @@ services:
   redis:
     image: redis:7-alpine
     container_name: codium-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - codium-network
+    ports: ["6379:6379"]
+    volumes: ["redis_data:/data"]
+    networks: ["codium-network"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -39,100 +33,64 @@ services:
       dockerfile: Dockerfile.dev
     env_file: ./.env
     container_name: codium-api
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      DATABASE_URL: postgresql://codium:codium_password@postgres:5432/codium_db?schema=public
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: 7d
-    ports:
-      - "3000:3000"
+    ports: ["3000:3000"]
     volumes:
       - .:/app
       - /app/node_modules
-      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - codium-network
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
     restart: unless-stopped
-    command: sh -c "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && npm run build && npm run start:prod"
+    # Este es el comando correcto para DESARROLLO RÁPIDO
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
 
   worker-python:
     build:
       context: ./workers/python-worker
       dockerfile: Dockerfile
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    environment: { REDIS_HOST: redis, REDIS_PORT: 6379 }
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - codium-network
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
     restart: unless-stopped
 
   worker-java:
     build:
       context: ./workers/java-worker
       dockerfile: Dockerfile
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    environment: { REDIS_HOST: redis, REDIS_PORT: 6379 }
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - codium-network
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
     restart: unless-stopped
 
   worker-nodejs:
     build:
       context: ./workers/nodejs-worker
       dockerfile: Dockerfile
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    environment: { REDIS_HOST: redis, REDIS_PORT: 6379 }
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - codium-network
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
     restart: unless-stopped
 
   worker-cpp:
     build:
       context: ./workers/cpp-worker
       dockerfile: Dockerfile
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    environment: { REDIS_HOST: redis, REDIS_PORT: 6379 }
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - codium-network
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
     restart: unless-stopped
 
 networks:
