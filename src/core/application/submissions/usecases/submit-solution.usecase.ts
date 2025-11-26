@@ -42,7 +42,9 @@ export class SubmitSolutionUseCase {
 
     const saved = await this.submissionRepository.create(submission);
 
-    await this.submissionQueue.add("process-submission", { submissionId: saved.id });
+    // Include the language in the job payload so language-specific workers
+    // can decide whether to process it without querying the DB.
+    await this.submissionQueue.add("process-submission", { submissionId: saved.id, language: saved.language });
 
     return SubmissionMapper.toDto(saved);
   }

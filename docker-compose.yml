@@ -57,6 +57,11 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    # Basic runtime limits to reduce blast radius for execution workers
+    mem_limit: 512m
+    ulimits:
+      nproc: 200
+      nofile: 1048576
     command: sh -c "npx prisma generate && npm start"
 
   worker-java:
@@ -72,6 +77,10 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    mem_limit: 512m
+    ulimits:
+      nproc: 200
+      nofile: 1048576
     command: sh -c "npx prisma generate && npm start"
 
   worker-nodejs:
@@ -87,6 +96,10 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    mem_limit: 512m
+    ulimits:
+      nproc: 200
+      nofile: 1048576
     command: sh -c "npx prisma generate && npm start"
 
   worker-cpp:
@@ -102,6 +115,10 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    mem_limit: 1024m
+    ulimits:
+      nproc: 200
+      nofile: 1048576
     command: sh -c "npx prisma generate && npm start"
 
 networks:
