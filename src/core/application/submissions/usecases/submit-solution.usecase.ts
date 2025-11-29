@@ -79,7 +79,9 @@ export class SubmitSolutionUseCase {
     const saved = await this.submissionRepository.create(submission);
 
     // Encolar para procesamiento asíncrono
+    // Encolar con nombre de trabajo 'process-submission' para compatibilidad con workers externos
     await this.submissionQueue.add(
+      'process-submission',
       {
         submissionId: saved.id,
         userId,

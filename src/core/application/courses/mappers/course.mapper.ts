@@ -7,7 +7,6 @@ export class CourseMapper {
       id: entity.id,
       name: entity.name,
       code: entity.code,
-      period: entity.period,
       group: entity.group,
       professorIds: entity.professorIds,
     };

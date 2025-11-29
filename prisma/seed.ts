@@ -63,8 +63,7 @@ async function main() {
     create: {
       name: "Desarrollo de Aplicaciones Backend",
       code: "NRC12345",
-      period: "2025-1",
-      group: 1,
+      group: 1, // El campo group es un entero, usado como identificador de grupo
       professors: {
         connect: { id: professor.id },
       },

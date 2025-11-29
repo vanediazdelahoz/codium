@@ -39,7 +39,30 @@ export class SubmissionMapper {
       caseId: idx + 1,
       status: mapTestCaseStatus(result.status),
       timeMs: result.timeMs,
+      output: result.output,
+      error: result.error,
     }))
+
+    const dtoStatus = (() => {
+      switch (entity.status) {
+        case SubmissionStatus.QUEUED:
+          return 'QUEUED'
+        case SubmissionStatus.RUNNING:
+          return 'RUNNING'
+        case SubmissionStatus.ACCEPTED:
+          return 'ACCEPTED'
+        case SubmissionStatus.WRONG_ANSWER:
+          return 'WRONG_ANSWER'
+        case SubmissionStatus.TIME_LIMIT_EXCEEDED:
+          return 'TLE'
+        case SubmissionStatus.RUNTIME_ERROR:
+          return 'RE'
+        case SubmissionStatus.COMPILATION_ERROR:
+          return 'CE'
+        default:
+          return String(entity.status)
+      }
+    })()
 
     const dto: SubmissionDto = {
       id: entity.id,
@@ -48,7 +71,7 @@ export class SubmissionMapper {
       challengeId: entity.challengeId,
       courseId: entity.courseId,
       language: mapLanguage(entity.language),
-      status: entity.status,
+      status: dtoStatus,
       score: entity.score,
       executionTime: `${(entity.timeMsTotal || 0) / 1000}s`,
       submittedAt: entity.createdAt.toISOString(),

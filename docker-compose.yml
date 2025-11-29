@@ -43,7 +43,7 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
-    command: sh -c "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm exec prisma db seed && pnpm run start:dev"
+    command: sh -c "pnpm exec prisma generate && pnpm run start:dev"
 
   worker-python:
     build:
@@ -58,6 +58,8 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-java:
@@ -73,6 +75,8 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-nodejs:
@@ -88,6 +92,8 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-cpp:
@@ -103,6 +109,8 @@ services:
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
 networks:

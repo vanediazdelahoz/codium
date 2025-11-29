@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Param, Body, Delete } from "@nestjs/common";
+import { Controller, Post, Get, Param, Body, Delete, Inject } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { AddTestCaseUseCase } from "@core/application/challenges/usecases/add-test-case.usecase";
+import { TEST_CASE_REPOSITORY, TestCaseRepositoryPort } from '@core/domain/test-cases/test-case.repository.port';
 import { AddTestCaseDto } from "@core/application/challenges/dto/add-test-case.dto";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
@@ -12,6 +13,8 @@ import { UserRole } from "@core/domain/users/user.entity";
 export class TestCasesController {
   constructor(
     private readonly addTestCaseUseCase: AddTestCaseUseCase,
+    @Inject(TEST_CASE_REPOSITORY)
+    private readonly testCaseRepository: TestCaseRepositoryPort,
   ) {}
 
   @Post()
@@ -32,8 +35,22 @@ export class TestCasesController {
     @CurrentUser() user: any,
   ) {
     // Students see only public cases; prof/admin see all
-    // TODO: Implement getTestCasesByChallenge usecase with visibility rules
-    return { message: "Test cases list endpoint - to be implemented" };
+    const cases = await this.testCaseRepository.findByChallengeId(challengeId);
+
+    if (!cases) return [];
+
+    if (user.role === 'PROFESSOR' || user.role === 'ADMIN') {
+      return cases;
+    }
+
+    // Filtrar casos ocultos para estudiantes
+    return cases.filter((c) => !c.isHidden).map(c => ({
+      id: c.id,
+      input: c.input,
+      expectedOutput: c.expectedOutput,
+      order: c.order,
+      points: c.points,
+    }));
   }
 
   @Delete(":testCaseId")
@@ -44,7 +61,8 @@ export class TestCasesController {
     @Param('testCaseId') testCaseId: string,
     @CurrentUser() user: any,
   ) {
-    // TODO: Implement deleteTestCase usecase
-    return { message: "Test case deleted - to be implemented" };
+    // Solo profesores/administradores pueden eliminar
+    await this.testCaseRepository.delete(testCaseId);
+    return { message: 'Test case deleted' };
   }
 }

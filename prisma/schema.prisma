@@ -42,6 +42,19 @@ enum Language {
   CPP
 }
 
+enum TestCaseResultStatus {
+  PASS
+  FAIL
+  TIMEOUT
+  RUNTIME_ERROR
+}
+
+enum EvaluationStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -64,15 +77,16 @@ model Course {
   id        String   @id @default(uuid())
   name      String
   code      String   @unique
-  period    String
   group     Int
+  semester  String?  // e.g., "2024-II", "2025-I"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  professors  User[]       @relation("CourseProfessors")
-  students    CourseStudent[]
-  challenges  Challenge[]
-  submissions Submission[]
+  professors   User[]       @relation("CourseProfessors")
+  students     CourseStudent[]
+  challenges   Challenge[]
+  submissions  Submission[]
+  evaluations  Evaluation[]
 
   @@map("courses")
 }
@@ -149,10 +163,10 @@ model Submission {
 }
 
 model TestCaseResult {
-  id           String           @id @default(uuid())
+  id           String                @id @default(uuid())
   submissionId String
   testCaseId   String
-  status       SubmissionStatus
+  status       TestCaseResultStatus
   timeMs       Int
   memoryMb     Float
   output       String?
@@ -162,4 +176,33 @@ model TestCaseResult {
   testCase   TestCase   @relation(fields: [testCaseId], references: [id])
 
   @@map("test_case_results")
+}
+
+model Evaluation {
+  id           String             @id @default(uuid())
+  name         String
+  description  String?
+  courseId     String
+  status       EvaluationStatus   @default(DRAFT)
+  startDate    DateTime
+  endDate      DateTime
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  course     Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  challenges EvaluationChallenge[]
+
+  @@map("evaluations")
+}
+
+model EvaluationChallenge {
+  id            String  @id @default(uuid())
+  evaluationId  String
+  challengeId   String
+  order         Int
+
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluationId, challengeId])
+  @@map("evaluation_challenges")
 }

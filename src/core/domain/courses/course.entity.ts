@@ -2,7 +2,7 @@ interface CourseProps {
   id: string;
   name: string;
   code: string;
-  period: string;
+
   group: number;
   professorIds: string[];
   studentIds?: string[];
@@ -14,7 +14,7 @@ export class Course {
   public readonly id: string;
   public readonly name: string;
   public readonly code: string;
-  public readonly period: string;
+
   public readonly group: number;
   public readonly professorIds: string[];
   public readonly studentIds?: string[];
@@ -25,7 +25,7 @@ export class Course {
     this.id = props.id;
     this.name = props.name;
     this.code = props.code;
-    this.period = props.period;
+
     this.group = props.group;
     this.professorIds = props.professorIds;
     this.studentIds = props.studentIds;
