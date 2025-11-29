@@ -8,7 +8,17 @@ export class TestCasePrismaRepository implements TestCaseRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(testCase: TestCase): Promise<TestCase> {
-    const created = await this.prisma.testCase.create({ data: testCase });
+    const data = {
+      id: testCase.id,
+      challengeId: testCase.challengeId,
+      input: testCase.input,
+      expectedOutput: testCase.expectedOutput,
+      isHidden: testCase.isHidden,
+      points: testCase.points,
+      order: testCase.order,
+    };
+
+    const created = await this.prisma.testCase.create({ data });
     return this.toDomain(created);
   }
 

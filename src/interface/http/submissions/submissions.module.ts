@@ -9,6 +9,8 @@ import { SubmissionPrismaRepository } from "@infrastructure/database/prisma/subm
 import { SubmissionProcessor } from "@infrastructure/queue/submission.processor";
 import { PrismaService } from "@infrastructure/database/prisma.service";
 import { ChallengesModule } from "../challenges/challenges.module";
+import { UsersModule } from "../users/users.module";
+import { TestCasesModule } from "../test-cases/test-case.module";
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { ChallengesModule } from "../challenges/challenges.module";
       name: "submissions",
     }),
     ChallengesModule,
+    UsersModule,
+    TestCasesModule,
   ],
   controllers: [SubmissionsController],
   providers: [

@@ -13,6 +13,7 @@ import { JwtAuthGuard } from "./interface/http/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "./interface/http/auth/guards/roles.guard";
 import { PrismaService } from "./infrastructure/database/prisma.service";
 import { TestCasesModule } from "./interface/http/test-cases/test-case.module";
+import { InfrastructureModule } from "./infrastructure/infrastructure.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TestCasesModule } from "./interface/http/test-cases/test-case.module";
         port: Number.parseInt(process.env.REDIS_PORT || "6379"),
       },
     }),
+    InfrastructureModule,
     AuthModule,
     UsersModule,
     ChallengesModule,

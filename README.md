@@ -70,10 +70,94 @@ Puedes usar estas credenciales en el endpoint `/api/auth/login` para obtener un 
 
 ## ✅ Módulos Implementados
 El proyecto incluye la implementación de los siguientes módulos principales, según los requerimientos:
-* **Autenticación y Autorización** (Módulo 1)
-* **Gestión de Retos** (Módulo 2)
-* **Submissions (Envíos)** (Módulo 3)
-* **Gestión de Cursos** (Módulo 5)
+* **Autenticación y Autorización** (Módulo 1) ✅
+* **Gestión de Retos** (Módulo 2) ✅
+* **Submissions (Envíos)** (Módulo 3) ⏳
+* **Gestión de Cursos** (Módulo 5) ✅
+* **Queue + Workers** (Módulo 4) 🔴 CRÍTICO (Semana 3)
+* **Leaderboard** (Módulo 6) ⏳
+* **Observabilidad (Logs + Métricas)** ⏳
 
 ---
+
+## 📚 Documentación Completa
+
+**Índice de documentos por rol:**
+
+### 👨‍💼 Project Managers / Tech Leads
+- **[EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md)** — Estado general, cambios realizados, roadmap completo (400+ líneas)
+- **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** — Análisis detallado por semana, estado de completitud, próximos pasos
+
+### 👨‍💻 Backend Developers
+- **[QUEUE_WORKERS_GUIDE.md](./QUEUE_WORKERS_GUIDE.md)** — 🔴 **CRÍTICO** — Implementación paso a paso de Queue + Workers con código listo para copiar (290+ líneas)
+- **[PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md)** — Checkboxes por tarea, validación final, debugging
+
+### 👨‍💻 Frontend Developers
+- **[ENDPOINTS.md](./ENDPOINTS.md)** — Especificación técnica completa de todos los endpoints con ejemplos (350+ líneas)
+- **[BACKEND_READY.md](./BACKEND_READY.md)** — Quick start en español, credenciales, formato de respuestas
+
+### 🔍 Auditors / QA
+- **[INTEGRATION_REPORT.md](./INTEGRATION_REPORT.md)** — Reporte de cambios realizados, matriz de validación, inconsistencias resueltas
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** — Referencia rápida (30 segundos) para todos los roles
+
+---
+
+## 🎯 Estado Actual (Semana 2 Completada)
+
+```
+✅ Completado (Semana 1-2):
+  • Docker Compose funcional (api, postgres, redis, 4 workers)
+  • Modelos Prisma implementados
+  • Autenticación JWT + Roles + Guards
+  • CRUD Retos con test cases
+  • DTOs alineados con frontend
+
+🔴 CRÍTICO (Semana 3):
+  • Queue + Workers (submissions se quedan encoladas sin esto)
+  • Runners con límites de recursos
+  → Guía: QUEUE_WORKERS_GUIDE.md
+
+⏳ Próximas fases (Semana 4+):
+  • Leaderboard
+  • Evaluaciones
+  • Observabilidad (logs + métricas)
+  • Swagger automático
+  • Kubernetes
+```
+
+---
+
+## 🚀 Próximos Pasos (Semana 3 - CRÍTICO)
+
+**Objetivo:** Queue + Workers funcionales
+
+**Tareas:**
+1. `npm install dockerode @types/dockerode`
+2. Crear `src/infrastructure/queue/queue.module.ts`
+3. Crear `src/infrastructure/runners/runner.service.ts` (Docker SDK)
+4. Implementar `SubmissionProcessor` (consume jobs de Redis)
+5. Actualizar `SubmitSolutionUseCase` para encolar submissions
+6. Validar: POST /api/submissions → procesa completamente
+
+**Documentación:** Ver [QUEUE_WORKERS_GUIDE.md](./QUEUE_WORKERS_GUIDE.md) — 290+ líneas con código listo para copiar/pegar
+
+**Tiempo estimado:** 4-6 horas  
+**Riesgo:** ALTO (bloquea feature principal)
+
+---
+
+## 📊 Cambios en Esta Sesión
+
+- ✅ Auditoría completa del proyecto (backend + frontend)
+- ✅ Alineación frontend-first — Backend reescrito para servir exactamente lo que frontend espera
+- ✅ Normalización de lenguajes (acepta "Python" y enum PYTHON)
+- ✅ Enriquecimiento con studentName en submissions
+- ✅ Endpoints de Test Cases creados
+- ✅ 5 documentos generados (1390+ líneas)
+- ✅ Build limpio (TypeScript sin errores)
+
+---
+
 _Proyecto desarrollado por Carlos Avendaño, Vanessa Diaz y Oskleiderbeth Vasquez - 2025_
+
+**Última actualización:** 29 de noviembre de 2025 — Sesión: Full Integration + Complete Planning

@@ -1,22 +1,22 @@
 import { Language, SubmissionStatus } from '@core/domain/submissions/submission.entity';
 
 export class TestCaseResultDto {
-  testCaseId: string;
-  status: SubmissionStatus;
+  caseId: number;
+  status: string; // e.g. OK, WA, TLE, RE, CE
   timeMs: number;
-  memoryMb: number;
 }
 
 export class SubmissionDto {
   id: string;
-  userId: string;
+  studentId: string; // UUID of the user
+  studentName: string; // enriched with user fullName from repository
   challengeId: string;
   courseId: string;
-  language: Language;
-  status: SubmissionStatus;
+  language: string; // frontend-friendly language e.g. "Python", "C++"
+  status: string; // e.g. ACCEPTED, WRONG_ANSWER, etc.
   score: number;
-  timeMsTotal: number;
-  memoryUsedMb: number;
+  executionTime: string; // e.g. "0.45s"
+  submittedAt: string; // ISO format timestamp for frontend
   createdAt: Date;
-  results: TestCaseResultDto[];
+  testCases: TestCaseResultDto[];
 }

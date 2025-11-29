@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsUUID } from "class-validator";
+import { IsString, IsNotEmpty, IsUUID } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { Language } from "@core/domain/submissions/submission.entity";
 
@@ -18,7 +18,10 @@ export class SubmitSolutionDto {
   @IsNotEmpty()
   code: string;
 
-  @ApiProperty({ enum: Language, example: Language.PYTHON })
-  @IsEnum(Language)
-  language: Language;
+  @ApiProperty({
+    example: Language.PYTHON,
+    description: "Language enum (PYTHON, JAVA, NODEJS, CPP) or human-friendly string (Python, C++, Node.js, Java)",
+  })
+  @IsNotEmpty()
+  language: Language | string; // Accept both enum and friendly strings
 }
