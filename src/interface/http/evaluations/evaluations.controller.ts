@@ -7,6 +7,7 @@ import { GetEvaluationUseCase } from "@core/application/evaluations/usecases/get
 import { DeleteEvaluationUseCase } from "@core/application/evaluations/usecases/delete-evaluation.usecase";
 import { AddChallengeToEvaluationUseCase } from "@core/application/evaluations/usecases/add-challenge-to-evaluation.usecase";
 import { RemoveChallengeFromEvaluationUseCase } from "@core/application/evaluations/usecases/remove-challenge-from-evaluation.usecase";
+import { GetActiveEvaluationsUseCase } from "@core/application/evaluations/usecases/get-active-evaluations.usecase";
 import { CreateEvaluationDto, UpdateEvaluationDto, AddChallengeToEvaluationDto } from "@core/application/evaluations/dto/create-evaluation.dto";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
@@ -24,10 +25,11 @@ export class EvaluationsController {
     private readonly deleteEvaluationUseCase: DeleteEvaluationUseCase,
     private readonly addChallengeToEvaluationUseCase: AddChallengeToEvaluationUseCase,
     private readonly removeChallengeFromEvaluationUseCase: RemoveChallengeFromEvaluationUseCase,
+    private readonly getActiveEvaluationsUseCase: GetActiveEvaluationsUseCase,
   ) {}
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
+  @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new evaluation" })
   @ApiResponse({ status: 201, description: "Evaluation created" })
   async create(@Body() dto: CreateEvaluationDto, @CurrentUser() user: any) {
@@ -35,10 +37,17 @@ export class EvaluationsController {
   }
 
   @Get()
-  @ApiOperation({ summary: "List all evaluations (filtered by course)" })
+  @ApiOperation({ summary: "List all evaluations (filtered by group)" })
   @ApiResponse({ status: 200, description: "List of evaluations" })
-  async list(@Query("courseId") courseId?: string) {
-    return this.listEvaluationsUseCase.execute(courseId);
+  async list(@Query("groupId") groupId?: string) {
+    return this.listEvaluationsUseCase.execute(groupId);
+  }
+
+  @Get("active")
+  @ApiOperation({ summary: "Get currently active evaluations" })
+  @ApiResponse({ status: 200, description: "List of active evaluations" })
+  async getActive(@Query("groupId") groupId?: string) {
+    return this.getActiveEvaluationsUseCase.execute(groupId);
   }
 
   @Get(":id")
@@ -49,7 +58,7 @@ export class EvaluationsController {
   }
 
   @Patch(":id")
-  @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
+  @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update evaluation" })
   @ApiResponse({ status: 200, description: "Evaluation updated" })
   async update(@Param("id") id: string, @Body() dto: UpdateEvaluationDto) {
@@ -57,7 +66,7 @@ export class EvaluationsController {
   }
 
   @Delete(":id")
-  @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
+  @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Delete evaluation" })
   @ApiResponse({ status: 200, description: "Evaluation deleted" })
   async delete(@Param("id") id: string) {
@@ -65,7 +74,7 @@ export class EvaluationsController {
   }
 
   @Post(":id/challenges")
-  @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
+  @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Add challenge to evaluation" })
   @ApiResponse({ status: 200, description: "Challenge added" })
   async addChallenge(@Param("id") evaluationId: string, @Body() dto: AddChallengeToEvaluationDto) {
@@ -73,7 +82,7 @@ export class EvaluationsController {
   }
 
   @Delete(":id/challenges/:challengeId")
-  @Roles(UserRole.ADMIN, UserRole.PROFESSOR)
+  @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Remove challenge from evaluation" })
   @ApiResponse({ status: 200, description: "Challenge removed" })
   async removeChallenge(@Param("id") evaluationId: string, @Param("challengeId") challengeId: string) {

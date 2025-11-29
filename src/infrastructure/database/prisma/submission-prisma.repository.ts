@@ -8,16 +8,23 @@ export class SubmissionPrismaRepository implements SubmissionRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(submission: Submission): Promise<Submission> {
+    const createData: any = {
+      id: submission.id,
+      userId: submission.userId,
+      challengeId: submission.challengeId,
+      groupId: submission.groupId,
+      code: submission.code,
+      language: submission.language,
+      status: submission.status,
+    };
+
+    // Agregar evaluationId solo si está definido
+    if (submission.evaluationId) {
+      createData.evaluationId = submission.evaluationId;
+    }
+
     const created = await this.prisma.submission.create({
-      data: {
-        id: submission.id,
-        userId: submission.userId,
-        challengeId: submission.challengeId,
-        courseId: submission.courseId,
-        code: submission.code,
-        language: submission.language,
-        status: submission.status,
-      },
+      data: createData,
       include: { results: true },
     });
     return this.toDomain(created);
@@ -49,9 +56,9 @@ export class SubmissionPrismaRepository implements SubmissionRepositoryPort {
     return submissions.map(s => this.toDomain(s));
   }
   
-  async findByCourseId(courseId: string): Promise<Submission[]> {
+  async findByGroupId(groupId: string): Promise<Submission[]> {
     const submissions = await this.prisma.submission.findMany({
-        where: { courseId },
+        where: { groupId },
         orderBy: { createdAt: "desc" },
         include: { results: true },
     });
@@ -112,7 +119,8 @@ export class SubmissionPrismaRepository implements SubmissionRepositoryPort {
       id: prismaSubmission.id,
       userId: prismaSubmission.userId,
       challengeId: prismaSubmission.challengeId,
-      courseId: prismaSubmission.courseId,
+      groupId: prismaSubmission.groupId,
+      evaluationId: prismaSubmission.evaluationId || undefined,
       code: prismaSubmission.code,
       language: prismaSubmission.language as Language,
       status: prismaSubmission.status as SubmissionStatus,

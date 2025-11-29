@@ -4,16 +4,17 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost
 export class ApiClient {
   private static token: string | null = null
 
+  // Usar la key `auth_token` que esperan los hooks del frontend
   static setToken(token: string) {
     this.token = token
     if (typeof window !== "undefined") {
-      localStorage.setItem("token", token)
+      localStorage.setItem("auth_token", token)
     }
   }
 
   static getToken(): string | null {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("token") || this.token
+      return localStorage.getItem("auth_token") || this.token
     }
     return this.token
   }
@@ -21,7 +22,7 @@ export class ApiClient {
   static clearToken() {
     this.token = null
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token")
+      localStorage.removeItem("auth_token")
     }
   }
 
@@ -81,28 +82,39 @@ export class ApiClient {
 
 // Auth APIs
 export const authApi = {
-  login: (email: string, password: string) =>
-    ApiClient.post("/auth/login", { email, password }),
-  register: (firstName: string, lastName: string, email: string, password: string, role: string) =>
-    ApiClient.post("/auth/register", { firstName, lastName, email, password, role }),
-  getCurrentUser: () => ApiClient.get("/auth/me"),
+  // Acepta un payload { email, password } o (email, password)
+  login: (...args: any[]) => {
+    const payload = args[0]
+    if (typeof payload === 'object') return ApiClient.post('/auth/login', payload)
+    const email = args[0]
+    const password = args[1]
+    return ApiClient.post('/auth/login', { email, password })
+  },
+  // Registro: acepta un objeto con campos { firstName, lastName, email, password, role }
+  register: (payload: any) => ApiClient.post('/auth/register', payload),
+  getCurrentUser: () => ApiClient.get('/auth/me'),
+  // Alias `me` para compatibilidad con hooks existentes
+  me: () => ApiClient.get('/auth/me'),
 }
 
 // Courses APIs
 export const coursesApi = {
   list: () => ApiClient.get("/courses"),
   get: (id: string) => ApiClient.get(`/courses/${id}`),
+  getStudents: (courseId: string) => ApiClient.get(`/courses/${courseId}/students`),
   create: (data: any) => ApiClient.post("/courses", data),
   update: (id: string, data: any) => ApiClient.patch(`/courses/${id}`, data),
   delete: (id: string) => ApiClient.delete(`/courses/${id}`),
   enrollStudent: (courseId: string, studentId: string) =>
     ApiClient.post(`/courses/${courseId}/students`, { studentId }),
+  unenrollStudent: (courseId: string, studentId: string) =>
+    ApiClient.post(`/courses/${courseId}/students/${studentId}/unenroll`, {}),
 }
 
 // Challenges APIs
 export const challengesApi = {
-  list: (courseId?: string) => {
-    const query = courseId ? `?courseId=${courseId}` : ""
+  list: (groupId?: string) => {
+    const query = groupId ? `?groupId=${groupId}` : ""
     return ApiClient.get(`/challenges${query}`)
   },
   get: (id: string) => ApiClient.get(`/challenges/${id}`),
@@ -123,15 +135,20 @@ export const testCasesApi = {
 // Submissions APIs
 export const submissionsApi = {
   list: () => ApiClient.get("/submissions/my-submissions"),
+  listUserSubmissions: () => ApiClient.get("/submissions/my-submissions"),
   get: (id: string) => ApiClient.get(`/submissions/${id}`),
   submit: (data: any) => ApiClient.post("/submissions", data),
 }
 
 // Evaluations APIs
 export const evaluationsApi = {
-  list: (courseId?: string) => {
-    const query = courseId ? `?courseId=${courseId}` : ""
+  list: (groupId?: string) => {
+    const query = groupId ? `?groupId=${groupId}` : ""
     return ApiClient.get(`/evaluations${query}`)
+  },
+  active: (groupId?: string) => {
+    const query = groupId ? `?groupId=${groupId}` : ""
+    return ApiClient.get(`/evaluations/active${query}`)
   },
   get: (id: string) => ApiClient.get(`/evaluations/${id}`),
   create: (data: any) => ApiClient.post("/evaluations", data),
@@ -159,6 +176,19 @@ export const usersApi = {
   list: () => ApiClient.get("/users"),
 }
 
+// Groups APIs
+export const groupsApi = {
+  list: (courseId: string) => ApiClient.get(`/groups?courseId=${courseId}`),
+  get: (id: string) => ApiClient.get(`/groups/${id}`),
+  getByNumber: (courseId: string, number: number) =>
+    ApiClient.get(`/groups/course/${courseId}/number/${number}`),
+  create: (data: any) => ApiClient.post("/groups", data),
+  update: (id: string, data: any) => ApiClient.patch(`/groups/${id}`, data),
+  delete: (id: string) => ApiClient.delete(`/groups/${id}`),
+  enrollStudent: (groupId: string, studentId: string) =>
+    ApiClient.post(`/groups/${groupId}/students`, { studentId }),
+}
+
 // Export consolidated client
 export const apiClient = {
   authApi,
@@ -169,4 +199,5 @@ export const apiClient = {
   evaluationsApi,
   leaderboardsApi,
   usersApi,
+  groupsApi,
 }
