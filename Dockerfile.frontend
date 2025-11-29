@@ -1,0 +1,35 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY frontend/package.json frontend/pnpm-lock.yaml* ./
+
+RUN npm install -g pnpm && pnpm install
+
+COPY frontend .
+
+ARG NEXT_PUBLIC_API_URL=http://api:3000/api
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+RUN pnpm run build
+
+# Runtime stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+COPY frontend/package.json frontend/pnpm-lock.yaml* ./
+
+RUN pnpm install --prod
+
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/public public
+COPY --from=builder /app/next.config.mjs .
+
+EXPOSE 3001
+
+CMD ["pnpm", "start"]

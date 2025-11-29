@@ -45,6 +45,21 @@ services:
     restart: unless-stopped
     command: sh -c "pnpm exec prisma generate && pnpm run start:dev"
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://api:3000/api
+    container_name: codium-frontend
+    ports: ["3001:3001"]
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    depends_on:
+      - api
+    networks: ["codium-network"]
+    restart: unless-stopped
+
   worker-python:
     build:
       context: .

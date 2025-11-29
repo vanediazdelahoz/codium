@@ -1,7 +1,60 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, Target, FileText, TrendingUp } from "lucide-react"
+import { BookOpen, Target, FileText, TrendingUp, Loader2 } from "lucide-react"
+import { apiClient } from "@/lib/api-client"
+
+interface Stats {
+  totalCourses: number
+  totalChallenges: number
+  totalEvaluations: number
+  totalSubmissions: number
+}
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<Stats>({
+    totalCourses: 0,
+    totalChallenges: 0,
+    totalEvaluations: 0,
+    totalSubmissions: 0,
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const [courses, challenges, evaluations, submissions] = await Promise.all([
+          apiClient.coursesApi.list(),
+          apiClient.challengesApi.list(),
+          apiClient.evaluationsApi.list(),
+          apiClient.submissionsApi.listUserSubmissions(),
+        ])
+
+        setStats({
+          totalCourses: courses.length,
+          totalChallenges: challenges.length,
+          totalEvaluations: evaluations.length,
+          totalSubmissions: submissions.length,
+        })
+      } catch (err) {
+        console.error("Error loading dashboard stats:", err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadStats()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -16,8 +69,8 @@ export default function DashboardPage() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+2 desde el mes pasado</p>
+            <div className="text-2xl font-bold">{stats.totalCourses}</div>
+            <p className="text-xs text-muted-foreground">Cursos disponibles</p>
           </CardContent>
         </Card>
 
@@ -27,8 +80,8 @@ export default function DashboardPage() {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">+8 nuevos esta semana</p>
+            <div className="text-2xl font-bold">{stats.totalChallenges}</div>
+            <p className="text-xs text-muted-foreground">Retos disponibles</p>
           </CardContent>
         </Card>
 
@@ -38,8 +91,8 @@ export default function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">3 en progreso</p>
+            <div className="text-2xl font-bold">{stats.totalEvaluations}</div>
+            <p className="text-xs text-muted-foreground">Evaluaciones activas</p>
           </CardContent>
         </Card>
 
@@ -49,8 +102,8 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">289</div>
-            <p className="text-xs text-muted-foreground">+52 esta semana</p>
+            <div className="text-2xl font-bold">{stats.totalSubmissions}</div>
+            <p className="text-xs text-muted-foreground">Tus envíos</p>
           </CardContent>
         </Card>
       </div>

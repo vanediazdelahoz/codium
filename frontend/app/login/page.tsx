@@ -9,17 +9,37 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, AlertCircle } from "lucide-react"
+import { apiClient } from "@/lib/api-client"
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Frontend only - simulate login
-    router.push("/dashboard")
+    setError("")
+    setIsLoading(true)
+
+    try {
+      const response = await apiClient.authApi.login({
+        email,
+        password,
+      })
+
+      if (response.access_token) {
+        localStorage.setItem("auth_token", response.access_token)
+        router.push("/dashboard")
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -57,6 +77,12 @@ export default function LoginPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-base">
@@ -69,6 +95,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="h-11"
                 />
               </div>
@@ -83,11 +110,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="h-11"
                 />
               </div>
-              <Button type="submit" className="w-full h-11 text-base font-semibold">
-                Iniciar Sesión
+              <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={isLoading}>
+                {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Evaluation, EvaluationStatus } from "@core/domain/evaluations/evaluation.entity";
 import { EvaluationRepositoryPort } from "@core/domain/evaluations/evaluation.repository.port";
-import { PrismaService } from "./prisma.service";
+import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class EvaluationPrismaRepository implements EvaluationRepositoryPort {
