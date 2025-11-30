@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Clock, Tag, Trophy, User } from "lucide-react"
+import { Calendar, Clock, Tag, Trophy, Loader2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { apiClient } from "@/lib/api-client"
 
 interface Submission {
   score: number
@@ -15,56 +16,76 @@ interface Submission {
   time: string
 }
 
-interface RankingEntry {
-  position: number
-  student: string
-  score: number
-  status: string
-  time: string
+interface Challenge {
+  id: string
+  title: string
+  description: string
+  course?: string
+  difficulty: string
+  tags: string[]
+  timeLimit: number
+  deadline?: string
 }
 
 export default function StudentChallengePage({ params }: { params: { id: string } }) {
   const [code, setCode] = useState("")
-  const [language, setLanguage] = useState("python")
+  const [language, setLanguage] = useState("PYTHON")
   const [lastSubmission, setLastSubmission] = useState<Submission | null>(null)
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [leaderboard, setLeaderboard] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Mock data
-  const challenge = {
-    name: "Implementar Lista Enlazada",
-    description:
-      "Implementa una lista enlazada simple con las operaciones básicas: insertar, eliminar, buscar y recorrer. La lista debe poder almacenar valores enteros.",
-    course: "Estructuras de Datos",
-    difficulty: "Medio",
-    tags: ["Listas", "Estructuras"],
-    timeLimit: "2 segundos",
-    deadline: "2024-06-15",
+  useEffect(() => {
+    loadData()
+  }, [params.id])
+
+  const loadData = async () => {
+    setIsLoading(true)
+    try {
+      const [challengeData, leaderboardData] = await Promise.all([
+        apiClient.challengesApi.get(params.id),
+        apiClient.leaderboardsApi.getChallengeLeaderboard(params.id, 10),
+      ])
+      setChallenge(challengeData)
+      setLeaderboard(leaderboardData || [])
+    } catch (err) {
+      console.error("Error loading challenge data:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const ranking: RankingEntry[] = [
-    { position: 1, student: "Ana García", score: 100, status: "Accepted", time: "0.5s" },
-    { position: 2, student: "Carlos López", score: 100, status: "Accepted", time: "0.8s" },
-    { position: 3, student: "María Pérez", score: 85, status: "Wrong Answer", time: "1.2s" },
-    { position: 4, student: "Juan Martínez", score: 70, status: "Time Limit Exceeded", time: "2.5s" },
-  ]
-
-  const handleSubmit = () => {
-    // Simulate submission
-    setLastSubmission({
-      score: Math.floor(Math.random() * 100),
-      status: ["Accepted", "Wrong Answer", "Running", "Time Limit Exceeded"][Math.floor(Math.random() * 4)],
-      time: `${(Math.random() * 2).toFixed(2)}s`,
-    })
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    try {
+      const data = await apiClient.submissionsApi.submit({
+        challengeId: params.id,
+        code,
+        language,
+      })
+      setLastSubmission({
+        score: data.score || 0,
+        status: data.status,
+        time: `${data.timeMsTotal}ms`,
+      })
+    } catch (err) {
+      console.error("Error submitting code:", err)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Accepted":
+      case "ACCEPTED":
         return "bg-green-500/10 text-green-700 border-green-500/20"
-      case "Wrong Answer":
+      case "WRONG_ANSWER":
         return "bg-red-500/10 text-red-700 border-red-500/20"
-      case "Running":
+      case "RUNNING":
+      case "QUEUED":
         return "bg-blue-500/10 text-blue-700 border-blue-500/20"
-      case "Time Limit Exceeded":
+      case "TIME_LIMIT_EXCEEDED":
         return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20"
       default:
         return "bg-gray-500/10 text-gray-700 border-gray-500/20"
@@ -73,15 +94,44 @@ export default function StudentChallengePage({ params }: { params: { id: string 
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "Fácil":
+      case "EASY":
         return "bg-green-500/10 text-green-700 border-green-500/20"
-      case "Medio":
+      case "MEDIUM":
         return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20"
-      case "Difícil":
+      case "HARD":
         return "bg-red-500/10 text-red-700 border-red-500/20"
       default:
         return "bg-gray-500/10 text-gray-700 border-gray-500/20"
     }
+  }
+
+  const getDifficultyLabel = (difficulty: string) => {
+    switch (difficulty) {
+      case "EASY":
+        return "Fácil"
+      case "MEDIUM":
+        return "Medio"
+      case "HARD":
+        return "Difícil"
+      default:
+        return difficulty
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (!challenge) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-muted-foreground">Reto no encontrado</p>
+      </div>
+    )
   }
 
   return (
@@ -89,38 +139,43 @@ export default function StudentChallengePage({ params }: { params: { id: string 
       {/* Challenge Information */}
       <Card className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <h1 className="text-3xl font-bold text-foreground">{challenge.name}</h1>
-          <Badge className={getDifficultyColor(challenge.difficulty)}>{challenge.difficulty}</Badge>
+          <h1 className="text-3xl font-bold text-foreground">{challenge.title}</h1>
+          <Badge className={getDifficultyColor(challenge.difficulty)}>{getDifficultyLabel(challenge.difficulty)}</Badge>
         </div>
 
         <p className="text-muted-foreground mb-6">{challenge.description}</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Curso:</span>
-            <span className="font-medium">{challenge.course}</span>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {challenge.course && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Curso:</span>
+              <span className="font-medium">{challenge.course}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">Límite:</span>
-            <span className="font-medium">{challenge.timeLimit}</span>
+            <span className="font-medium">{challenge.timeLimit}ms</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Fecha límite:</span>
-            <span className="font-medium">{new Date(challenge.deadline).toLocaleDateString()}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Tag className="h-4 w-4 text-muted-foreground" />
-            <div className="flex gap-1">
-              {challenge.tags.map((tag) => (
-                <Badge key={tag} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
+          {challenge.deadline && (
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Fecha límite:</span>
+              <span className="font-medium">{new Date(challenge.deadline).toLocaleDateString()}</span>
             </div>
-          </div>
+          )}
+          {challenge.tags.length > 0 && (
+            <div className="flex items-center gap-2 text-sm col-span-2 md:col-span-3">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              <div className="flex gap-1 flex-wrap">
+                {challenge.tags.map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -136,10 +191,10 @@ export default function StudentChallengePage({ params }: { params: { id: string 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="python">Python</SelectItem>
-                <SelectItem value="java">Java</SelectItem>
-                <SelectItem value="cpp">C++</SelectItem>
-                <SelectItem value="javascript">JavaScript</SelectItem>
+                <SelectItem value="PYTHON">Python</SelectItem>
+                <SelectItem value="JAVA">Java</SelectItem>
+                <SelectItem value="CPP">C++</SelectItem>
+                <SelectItem value="NODEJS">JavaScript/Node.js</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -150,12 +205,13 @@ export default function StudentChallengePage({ params }: { params: { id: string 
               placeholder="Escribe o pega tu código aquí..."
               className="min-h-[300px] font-mono text-sm"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e: any) => setCode(e.target.value)}
             />
           </div>
 
-          <Button onClick={handleSubmit} className="w-full">
-            Enviar código
+          <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+            {isSubmitting ? "Enviando..." : "Enviar código"}
           </Button>
         </div>
       </Card>
@@ -189,30 +245,32 @@ export default function StudentChallengePage({ params }: { params: { id: string 
           <h2 className="text-xl font-semibold">Ranking General del Reto</h2>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">Pos.</TableHead>
-              <TableHead>Estudiante</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Tiempo</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {ranking.map((entry) => (
-              <TableRow key={entry.position}>
-                <TableCell className="font-medium">#{entry.position}</TableCell>
-                <TableCell>{entry.student}</TableCell>
-                <TableCell>{entry.score}/100</TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(entry.status)}>{entry.status}</Badge>
-                </TableCell>
-                <TableCell>{entry.time}</TableCell>
+        {leaderboard.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">No hay resultados todavía</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">Pos.</TableHead>
+                <TableHead>Estudiante</TableHead>
+                <TableHead>Score</TableHead>
+                <TableHead>Tiempo</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {leaderboard.map((entry: any, index: number) => (
+                <TableRow key={entry.userId || index}>
+                  <TableCell className="font-medium">#{index + 1}</TableCell>
+                  <TableCell>
+                    {entry.user ? `${entry.user.firstName} ${entry.user.lastName}` : "Usuario Desconocido"}
+                  </TableCell>
+                  <TableCell>{entry.score}/100</TableCell>
+                  <TableCell>{entry.timeMsTotal}ms</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </Card>
     </div>
   )
