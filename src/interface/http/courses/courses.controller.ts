@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiResponse } from "@nestjs/swagger";
 import { CreateCourseUseCase } from "@core/application/courses/usecases/create-course.usecase";
 import { ListCoursesUseCase } from "@core/application/courses/usecases/list-courses.usecase";
 import { GetCourseUseCase } from "@core/application/courses/usecases/get-course.usecase";
@@ -33,18 +33,22 @@ export class CoursesController {
   @Post()
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new course" })
+  @ApiBody({ type: CreateCourseDto })
+  @ApiResponse({ status: 201, description: 'Course created' })
   async create(@Body() dto: CreateCourseDto, @CurrentUser() user: any) {
     return this.createCourseUseCase.execute(dto, user.role);
   }
 
   @Get()
   @ApiOperation({ summary: 'List all courses' })
+  @ApiResponse({ status: 200, description: 'List of courses' })
   async list(@CurrentUser() user: any) {
     return this.listCoursesUseCase.execute(user.id, user.role);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get course by ID' })
+  @ApiResponse({ status: 200, description: 'Course details' })
   async get(@Param('id') id: string, @CurrentUser() user: any) {
     return this.getCourseUseCase.execute(id, user.id, user.role);
   }
@@ -52,6 +56,8 @@ export class CoursesController {
   @Patch(':id')
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update a course" })
+  @ApiBody({ type: UpdateCourseDto })
+  @ApiResponse({ status: 200, description: 'Course updated' })
   async update(@Param('id') courseId: string, @Body() dto: UpdateCourseDto, @CurrentUser() user: any) {
     return this.updateCourseUseCase.execute(courseId, dto, user.role);
   }
@@ -65,6 +71,7 @@ export class CoursesController {
 
   @Get(':id/students')
   @ApiOperation({ summary: 'List students enrolled in a course' })
+  @ApiResponse({ status: 200, description: 'Students in course' })
   async getStudents(@Param('id') courseId: string, @CurrentUser() user: any) {
     return this.listCourseStudentsUseCase.execute(courseId, user.id, user.role);
   }
@@ -72,6 +79,8 @@ export class CoursesController {
   @Post(":id/students")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Enroll student in course" })
+  @ApiBody({ type: EnrollStudentDto })
+  @ApiResponse({ status: 200, description: 'Student enrolled in course' })
   async enrollStudent(@Param('id') courseId: string, @Body() dto: EnrollStudentDto, @CurrentUser() user: any) {
     return this.enrollStudentUseCase.execute(courseId, dto.studentId, user.id, user.role);
   }
@@ -79,6 +88,7 @@ export class CoursesController {
   @Post(":id/students/:studentId/unenroll")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Unenroll student from course" })
+  @ApiResponse({ status: 200, description: 'Student unenrolled' })
   async unenrollStudent(@Param('id') courseId: string, @Param('studentId') studentId: string, @CurrentUser() user: any) {
     return this.unenrollStudentUseCase.execute(courseId, studentId, user.id, user.role);
   }

@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Param, Query, Body } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { Controller, Get, Post, Patch, Delete, Param, Query, Body, BadRequestException } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiResponse } from "@nestjs/swagger";
 import { CreateGroupUseCase } from "@core/application/groups/usecases/create-group.usecase";
 import { ListGroupsUseCase } from "@core/application/groups/usecases/list-groups.usecase";
 import { GetGroupUseCase } from "@core/application/groups/usecases/get-group.usecase";
@@ -30,6 +30,8 @@ export class GroupsController {
   @Post()
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new group" })
+  @ApiBody({ type: CreateGroupDto })
+  @ApiResponse({ status: 201, description: 'Group created' })
   async create(@Body() dto: CreateGroupDto) {
     return this.createGroupUseCase.execute(
       dto.courseId,
@@ -41,21 +43,25 @@ export class GroupsController {
 
   @Get()
   @ApiOperation({ summary: "List groups by course" })
+  @ApiResponse({ status: 200, description: 'List of groups for course' })
   async list(@Query("courseId") courseId: string) {
     if (!courseId) {
-      throw new Error("courseId query parameter is required");
+      // Return a proper HTTP 400 instead of a generic Error
+      throw new BadRequestException("courseId query parameter is required");
     }
     return this.listGroupsUseCase.execute(courseId);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get group by ID" })
+  @ApiResponse({ status: 200, description: 'Group details' })
   async get(@Param("id") id: string) {
     return this.getGroupUseCase.execute(id);
   }
 
   @Get("course/:courseId/number/:number")
   @ApiOperation({ summary: "Get group by course ID and group number" })
+  @ApiResponse({ status: 200, description: 'Group details by course and number' })
   async getByNumber(
     @Param("courseId") courseId: string,
     @Param("number") number: string,
@@ -66,6 +72,8 @@ export class GroupsController {
   @Patch(":id")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update group" })
+  @ApiBody({ type: UpdateGroupDto })
+  @ApiResponse({ status: 200, description: 'Updated group' })
   async update(@Param("id") id: string, @Body() dto: UpdateGroupDto) {
     return this.updateGroupUseCase.execute(id, dto);
   }
@@ -73,6 +81,7 @@ export class GroupsController {
   @Delete(":id")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Delete group" })
+  @ApiResponse({ status: 200, description: 'Group deleted' })
   async delete(@Param("id") id: string) {
     await this.deleteGroupUseCase.execute(id);
     return { message: "Grupo eliminado" };
@@ -81,6 +90,8 @@ export class GroupsController {
   @Post(":id/students")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Enroll student in group" })
+  @ApiBody({ schema: { type: 'object', properties: { studentId: { type: 'string' } } } })
+  @ApiResponse({ status: 200, description: 'Student enrolled' })
   async enrollStudent(
     @Param("id") groupId: string,
     @Body() body: { studentId: string },

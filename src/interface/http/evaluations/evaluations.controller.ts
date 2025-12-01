@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Query, Body, Delete } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { CreateEvaluationUseCase } from "@core/application/evaluations/usecases/create-evaluation.usecase";
 import { UpdateEvaluationUseCase } from "@core/application/evaluations/usecases/update-evaluation.usecase";
 import { ListEvaluationsUseCase } from "@core/application/evaluations/usecases/list-evaluations.usecase";
@@ -32,6 +32,7 @@ export class EvaluationsController {
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new evaluation" })
   @ApiResponse({ status: 201, description: "Evaluation created" })
+  @ApiBody({ type: CreateEvaluationDto })
   async create(@Body() dto: CreateEvaluationDto, @CurrentUser() user: any) {
     return this.createEvaluationUseCase.execute(dto);
   }
@@ -61,6 +62,7 @@ export class EvaluationsController {
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update evaluation" })
   @ApiResponse({ status: 200, description: "Evaluation updated" })
+  @ApiBody({ type: UpdateEvaluationDto })
   async update(@Param("id") id: string, @Body() dto: UpdateEvaluationDto) {
     return this.updateEvaluationUseCase.execute(id, dto);
   }
@@ -77,6 +79,7 @@ export class EvaluationsController {
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Add challenge to evaluation" })
   @ApiResponse({ status: 200, description: "Challenge added" })
+  @ApiBody({ type: AddChallengeToEvaluationDto })
   async addChallenge(@Param("id") evaluationId: string, @Body() dto: AddChallengeToEvaluationDto) {
     return this.addChallengeToEvaluationUseCase.execute(evaluationId, dto);
   }

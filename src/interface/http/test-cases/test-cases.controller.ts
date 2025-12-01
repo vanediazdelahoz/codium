@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Param, Body, Delete, Inject } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiResponse } from "@nestjs/swagger";
 import { AddTestCaseUseCase } from "@core/application/challenges/usecases/add-test-case.usecase";
 import { TEST_CASE_REPOSITORY, TestCaseRepositoryPort } from '@core/domain/test-cases/test-case.repository.port';
 import { AddTestCaseDto } from "@core/application/challenges/dto/add-test-case.dto";
@@ -20,6 +20,8 @@ export class TestCasesController {
   @Post()
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Add a test case to a challenge" })
+  @ApiBody({ type: AddTestCaseDto })
+  @ApiResponse({ status: 201, description: 'Test case added' })
   async addTestCase(
     @Param('challengeId') challengeId: string,
     @Body() dto: AddTestCaseDto,
@@ -30,6 +32,7 @@ export class TestCasesController {
 
   @Get()
   @ApiOperation({ summary: "List test cases for a challenge (visible only to authorized users)" })
+  @ApiResponse({ status: 200, description: 'List of test cases' })
   async listTestCases(
     @Param('challengeId') challengeId: string,
     @CurrentUser() user: any,
@@ -56,6 +59,7 @@ export class TestCasesController {
   @Delete(":testCaseId")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Delete a test case" })
+  @ApiResponse({ status: 200, description: 'Test case deleted' })
   async deleteTestCase(
     @Param('challengeId') challengeId: string,
     @Param('testCaseId') testCaseId: string,

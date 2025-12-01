@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from "@nestjs/swagger";
 import { LoginUseCase } from "@core/application/auth/usecases/login.usecase";
 import { RegisterUseCase } from "@core/application/auth/usecases/register.usecase";
 import { LoginDto } from "@core/application/auth/dto/login.dto";
@@ -19,6 +19,7 @@ export class AuthController {
   @Post("register")
   @ApiOperation({ summary: "Register a new user" })
   @ApiResponse({ status: 201, description: "User registered successfully" })
+  @ApiBody({ type: RegisterDto })
   async register(@Body() dto: RegisterDto) {
     return this.registerUseCase.execute(dto);
   }
@@ -27,6 +28,7 @@ export class AuthController {
   @Post("login")
   @ApiOperation({ summary: "Login user" })
   @ApiResponse({ status: 200, description: "Login successful" })
+  @ApiBody({ type: LoginDto })
   async login(@Body() dto: LoginDto) {
     return this.loginUseCase.execute(dto);
   }

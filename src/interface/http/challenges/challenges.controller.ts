@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Query, Body, Delete } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiResponse } from "@nestjs/swagger";
 import { CreateChallengeUseCase } from "@core/application/challenges/usecases/create-challenge.usecase";
 import { UpdateChallengeUseCase } from "@core/application/challenges/usecases/update-challenge.usecase";
 import { ListChallengesUseCase } from "@core/application/challenges/usecases/list-challenges.usecase";
@@ -26,18 +26,22 @@ export class ChallengesController {
   @Post()
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Create a new challenge" })
+  @ApiBody({ type: CreateChallengeDto })
+  @ApiResponse({ status: 201, description: 'Challenge created' })
   async create(@Body() dto: CreateChallengeDto, @CurrentUser() user: any) {
     return this.createChallengeUseCase.execute(dto, user.id, user.role);
   }
 
   @Get()
   @ApiOperation({ summary: "List all challenges" })
+  @ApiResponse({ status: 200, description: 'List of challenges' })
   async list(@CurrentUser() user: any, @Query('groupId') groupId?: string) {
     return this.listChallengesUseCase.execute(user.role, groupId);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get challenge by ID" })
+  @ApiResponse({ status: 200, description: 'Challenge details' })
   async get(@Param('id') id: string, @CurrentUser() user: any) {
     return this.getChallengeUseCase.execute(id, user.role);
   }
@@ -45,6 +49,8 @@ export class ChallengesController {
   @Patch(":id")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Update challenge" })
+  @ApiBody({ type: UpdateChallengeDto })
+  @ApiResponse({ status: 200, description: 'Challenge updated' })
   async update(@Param('id') id: string, @Body() dto: UpdateChallengeDto, @CurrentUser() user: any) {
     return this.updateChallengeUseCase.execute(id, dto, user.id, user.role);
   }
@@ -52,6 +58,7 @@ export class ChallengesController {
   @Delete(":id")
   @Roles(UserRole.PROFESSOR)
   @ApiOperation({ summary: "Delete challenge" })
+  @ApiResponse({ status: 200, description: 'Challenge deleted' })
   async delete(@Param('id') id: string, @CurrentUser() user: any) {
     return this.deleteChallengeUseCase.execute(id, user.id, user.role);
   }
