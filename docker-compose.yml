@@ -6,8 +6,10 @@ services:
       POSTGRES_USER: codium
       POSTGRES_PASSWORD: codium_password
       POSTGRES_DB: codium_db
-    ports: ["5432:5432"]
-    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks: ["codium-network"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U codium"]
@@ -18,8 +20,10 @@ services:
   redis:
     image: redis:7-alpine
     container_name: codium-redis
-    ports: ["6379:6379"]
-    volumes: ["redis_data:/data"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks: ["codium-network"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -31,77 +35,110 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    env_file: ./.env
     container_name: codium-api
-    ports: ["3000:3000"]
-    volumes:
-      - .:/app
-      - /app/node_modules
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis: { condition: service_healthy }
-    networks: ["codium-network"]
-    restart: unless-stopped
-    command: sh -c "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm exec prisma db seed && pnpm run start:dev"
-
-  worker-python:
-    build:
-      context: .
-      dockerfile: ./workers/python-worker/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file: ./.env
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    command: sh -c "pnpm exec prisma generate && pnpm run start:dev"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000/api
+    container_name: codium-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+    depends_on:
+      - api
+    networks: ["codium-network"]
+    restart: unless-stopped
+
+  worker-python:
+    build:
+      context: . 
+      dockerfile: ./workers/python-worker/Dockerfile
+    container_name: codium-worker-python
+    env_file: ./.env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: ["codium-network"]
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-java:
     build:
       context: .
       dockerfile: ./workers/java-worker/Dockerfile
+    container_name: codium-worker-java
+    env_file: ./.env
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-nodejs:
     build:
       context: .
       dockerfile: ./workers/nodejs-worker/Dockerfile
+    container_name: codium-worker-nodejs
+    env_file: ./.env
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
   worker-cpp:
     build:
       context: .
       dockerfile: ./workers/cpp-worker/Dockerfile
+    container_name: codium-worker-cpp
+    env_file: ./.env
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
     networks: ["codium-network"]
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "npx prisma generate && npm start"
 
 networks:

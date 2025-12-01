@@ -37,7 +37,12 @@ async function bootstrap() {
     .addTag("challenges", "Gestión de retos")
     .addTag("submissions", "Envío y evaluación de soluciones")
     .addTag("courses", "Gestión de cursos")
+    .addTag("evaluations", "Gestión de evaluaciones formales")
+    .addTag("leaderboards", "Rankings y leaderboards")
+    .addTag("test-cases", "Gestión de casos de prueba")
     .addTag("users", "Gestión de usuarios")
+    .addTag("groups", "Gestión de grupos")
+    .addTag("enrollments", "Inscripciones de estudiantes")
     .build()
 
   const document = SwaggerModule.createDocument(app, config)

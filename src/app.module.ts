@@ -9,10 +9,15 @@ import { UsersModule } from "./interface/http/users/users.module";
 import { ChallengesModule } from "./interface/http/challenges/challenges.module";
 import { SubmissionsModule } from "./interface/http/submissions/submissions.module";
 import { CoursesModule } from "./interface/http/courses/courses.module";
+import { EvaluationsModule } from "./interface/http/evaluations/evaluations.module";
+import { LeaderboardsModule } from "./interface/http/leaderboards/leaderboards.module";
 import { JwtAuthGuard } from "./interface/http/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "./interface/http/auth/guards/roles.guard";
 import { PrismaService } from "./infrastructure/database/prisma.service";
 import { TestCasesModule } from "./interface/http/test-cases/test-case.module";
+import { InfrastructureModule } from "./infrastructure/infrastructure.module";
+import { GroupsModule } from "./interface/http/groups/groups.module";
+import { EnrollmentsModule } from "./interface/http/enrollments/enrollments.module";
 
 @Module({
   imports: [
@@ -26,12 +31,17 @@ import { TestCasesModule } from "./interface/http/test-cases/test-case.module";
         port: Number.parseInt(process.env.REDIS_PORT || "6379"),
       },
     }),
+    InfrastructureModule,
     AuthModule,
     UsersModule,
     ChallengesModule,
     SubmissionsModule,
     CoursesModule,
+    EvaluationsModule,
+    LeaderboardsModule,
     TestCasesModule,
+    GroupsModule,
+    EnrollmentsModule,
   ],
   providers: [
     PrismaService,

@@ -1,9 +1,7 @@
 interface CourseProps {
   id: string;
   name: string;
-  code: string;
-  period: string;
-  group: number;
+  code: string; // se usa como NRC identificador
   professorIds: string[];
   studentIds?: string[];
   createdAt: Date;
@@ -14,8 +12,7 @@ export class Course {
   public readonly id: string;
   public readonly name: string;
   public readonly code: string;
-  public readonly period: string;
-  public readonly group: number;
+
   public readonly professorIds: string[];
   public readonly studentIds?: string[];
   public readonly createdAt: Date;
@@ -25,8 +22,7 @@ export class Course {
     this.id = props.id;
     this.name = props.name;
     this.code = props.code;
-    this.period = props.period;
-    this.group = props.group;
+
     this.professorIds = props.professorIds;
     this.studentIds = props.studentIds;
     this.createdAt = props.createdAt;
@@ -39,19 +35,19 @@ export class Course {
 }
 
 interface CourseStudentProps {
-    courseId: string;
-    studentId: string;
-    enrolledAt: Date;
+  courseId: string;
+  studentId: string;
+  enrolledAt: Date;
 }
 
 export class CourseStudent {
-    public readonly courseId: string;
-    public readonly studentId: string;
-    public readonly enrolledAt: Date;
+  public readonly courseId: string;
+  public readonly studentId: string;
+  public readonly enrolledAt: Date;
 
-    constructor(props: CourseStudentProps) {
-        this.courseId = props.courseId;
-        this.studentId = props.studentId;
-        this.enrolledAt = props.enrolledAt;
-    }
+  constructor(props: CourseStudentProps) {
+    this.courseId = props.courseId;
+    this.studentId = props.studentId;
+    this.enrolledAt = props.enrolledAt;
+  }
 }
