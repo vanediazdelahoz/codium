@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -11,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, AlertCircle } from "lucide-react"
-import { apiClient } from "@/lib/api-client"
+import { ApiClient, apiClient } from "@/lib/api-client"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -26,14 +24,13 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await apiClient.authApi.login({
-        email,
-        password,
-      })
+      const response = await apiClient.authApi.login({ email, password })
 
       if (response.access_token) {
-        localStorage.setItem("auth_token", response.access_token)
-        router.push("/dashboard")
+        ApiClient.setToken(response.access_token) // Guardar token
+        router.push("/dashboard") // Redirigir
+      } else {
+        setError("No se recibió token del servidor")
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión")
@@ -76,6 +73,7 @@ export default function LoginPage() {
               <CardDescription className="text-base">Ingresa tus credenciales para continuar</CardDescription>
             </div>
           </CardHeader>
+
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4">
@@ -85,9 +83,7 @@ export default function LoginPage() {
             )}
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-base">
-                  Correo electrónico
-                </Label>
+                <Label htmlFor="email" className="text-base">Correo electrónico</Label>
                 <Input
                   id="email"
                   type="email"
@@ -99,10 +95,9 @@ export default function LoginPage() {
                   className="h-11"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-base">
-                  Contraseña
-                </Label>
+                <Label htmlFor="password" className="text-base">Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
@@ -114,9 +109,11 @@ export default function LoginPage() {
                   className="h-11"
                 />
               </div>
+
               <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={isLoading}>
                 {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
+
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
@@ -125,11 +122,10 @@ export default function LoginPage() {
                   <span className="bg-card px-2 text-muted-foreground">o</span>
                 </div>
               </div>
+
               <p className="text-center text-sm text-muted-foreground">
                 ¿No tienes cuenta?{" "}
-                <Link href="/register" className="text-primary hover:underline font-semibold">
-                  Crea una aquí
-                </Link>
+                <Link href="/register" className="text-primary hover:underline font-semibold">Crea una aquí</Link>
               </p>
             </form>
           </CardContent>
